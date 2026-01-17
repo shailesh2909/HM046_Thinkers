@@ -23,7 +23,6 @@ export const authAPI = {
       const response = await apiClient.post('/auth/signin', {
         email: credentials.email,
         password: credentials.password,
-        userType: credentials.userType,
       });
       return response.data;
     } catch (error) {

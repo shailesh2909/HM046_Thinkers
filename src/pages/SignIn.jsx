@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
 const SignIn = () => {
-  const [userType, setUserType] = useState("freelancer");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -23,13 +22,14 @@ const SignIn = () => {
       const response = await fetch("/api/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userType, ...signInData }),
+        body: JSON.stringify(signInData),
       });
 
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("token", data.token);
-        localStorage.setItem("userType", userType);
+        localStorage.setItem("userType", data.userType);
+        localStorage.setItem("userName", data.name || data.companyName);
         navigate("/dashboard");
       } else {
         alert("Invalid credentials");
@@ -79,32 +79,6 @@ const SignIn = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-black transition"
                 required
               />
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-black">Sign in as</label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    value="freelancer"
-                    checked={userType === "freelancer"}
-                    onChange={(e) => setUserType(e.target.value)}
-                    className="w-4 h-4"
-                  />
-                  <span className="text-gray-700">Freelancer</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    value="company"
-                    checked={userType === "company"}
-                    onChange={(e) => setUserType(e.target.value)}
-                    className="w-4 h-4"
-                  />
-                  <span className="text-gray-700">Company</span>
-                </label>
-              </div>
             </div>
 
             <button

@@ -50,6 +50,7 @@ const SignUp = () => {
         const data = await response.json();
         localStorage.setItem("token", data.token);
         localStorage.setItem("userType", userType);
+        localStorage.setItem("userName", signUpData.name);
         navigate("/dashboard");
       } else {
         alert("Sign up failed. Please try again.");
