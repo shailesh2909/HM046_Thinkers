@@ -1,6 +1,6 @@
 const express = require('express');
 const { connectDB, sequelize } = require('./config/database');
-const User = require('../backend_v2/models/User'); // Import models here
+const User = require('../models/User'); // Import models here
 
 const app = express();
 app.use(express.json());
