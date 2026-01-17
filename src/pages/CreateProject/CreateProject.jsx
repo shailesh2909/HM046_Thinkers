@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FaArrowLeft, FaPlus, FaTrash, FaDollarSign, FaCoins, FaCheck } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { projectAPI, projectMilestonesAPI } from '../../api/projectAPI';
 
 const CreateProject = ({ userType, userName }) => {
   const navigate = useNavigate();
@@ -9,7 +10,7 @@ const CreateProject = ({ userType, userName }) => {
     projectName: '',
     projectDescription: '',
     totalBudget: '',
-    currency: 'USD',
+    currency: 'INR',
     startDate: '',
     endDate: '',
     projectStatus: 'draft',
@@ -104,34 +105,51 @@ const CreateProject = ({ userType, userName }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (validateForm()) {
-      const projectData = {
-        ...formData,
-        totalTokens: tokens,
-        milestones: milestones.map(m => ({
-          ...m,
-          tokenAllocation: parseInt(m.tokenAllocation)
-        })),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        companyName: userName || 'Your Company'
-      };
-      
-      console.log('Project Created:', projectData);
-      setSubmitted(true);
-      
-      // Store in localStorage for demonstration
-      const existingProjects = JSON.parse(localStorage.getItem('createdProjects') || '[]');
-      existingProjects.push(projectData);
-      localStorage.setItem('createdProjects', JSON.stringify(existingProjects));
-      
-      // Redirect after 2 seconds
-      setTimeout(() => {
-        navigate('/my-projects');
-      }, 2000);
+      try {
+        // 1. Create the project
+        const projectResponse = await projectAPI.createProject({
+          projectName: formData.projectName,
+          description: formData.projectDescription,
+          totalBudget: parseFloat(formData.totalBudget),
+          currency: formData.currency,
+          startDate: formData.startDate,
+          endDate: formData.endDate,
+          projectStatus: formData.projectStatus
+        });
+
+        const projectId = projectResponse.data?.id || projectResponse.id;
+
+        // 2. Create milestones for the project
+        const milestonePromises = milestones.map((milestone, index) => 
+          projectMilestonesAPI.createMilestone({
+            projectId: projectId,
+            milestoneTitle: milestone.name,
+            description: milestone.description,
+            amount: parseFloat(milestone.tokenAllocation),
+            orderNo: milestone.order,
+            startDate: formData.startDate,
+            endDate: formData.endDate,
+            milestoneStatus: 'pending'
+          })
+        );
+
+        await Promise.all(milestonePromises);
+
+        console.log('Project and milestones created successfully');
+        setSubmitted(true);
+        
+        // Redirect after 2 seconds
+        setTimeout(() => {
+          navigate('/my-projects');
+        }, 2000);
+      } catch (error) {
+        console.error('Error creating project:', error);
+        alert('Failed to create project. Please try again.');
+      }
     }
   };
 

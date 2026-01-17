@@ -74,7 +74,93 @@ export const contractAPI = {
   },
 };
 
-// Payment APIs
+// Milestone Payment APIs
+export const milestonePaymentAPI = {
+  // Create milestone payment
+  createPayment: async (paymentData) => {
+    try {
+      const response = await apiClient.post('/payments/milestones', {
+        milestone_id: paymentData.milestoneId,
+        freelancer_auth_id: paymentData.freelancerAuthId,
+        amount: paymentData.amount,
+        currency: paymentData.currency || 'INR',
+        payment_status: paymentData.paymentStatus || 'pending', // pending / released / failed
+        transaction_reference: paymentData.transactionReference,
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Get milestone payments
+  getMilestonePayments: async (milestoneId) => {
+    try {
+      const response = await apiClient.get(`/payments/milestones/${milestoneId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Get payment by ID
+  getPaymentById: async (paymentId) => {
+    try {
+      const response = await apiClient.get(`/payments/${paymentId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Release payment (after milestone approval)
+  releasePayment: async (paymentId, transactionReference) => {
+    try {
+      const response = await apiClient.put(`/payments/${paymentId}/release`, {
+        payment_status: 'released',
+        transaction_reference: transactionReference,
+        paid_at: new Date().toISOString(),
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Get freelancer payments
+  getFreelancerPayments: async (freelancerAuthId) => {
+    try {
+      const response = await apiClient.get(`/payments/freelancer/${freelancerAuthId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Get company payments
+  getCompanyPayments: async () => {
+    try {
+      const response = await apiClient.get('/payments/company');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Update payment status
+  updatePaymentStatus: async (paymentId, status) => {
+    try {
+      const response = await apiClient.patch(`/payments/${paymentId}/status`, {
+        payment_status: status, // pending / released / failed
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+};
+
+// Payment APIs (General)
 export const paymentAPI = {
   // Process payment
   processPayment: async (paymentData) => {
@@ -149,4 +235,4 @@ export const paymentAPI = {
   },
 };
 
-export default { contractAPI, paymentAPI };
+export default { contractAPI, milestonePaymentAPI, paymentAPI };

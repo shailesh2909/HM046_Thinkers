@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { authAPI } from "../api/authAPI";
 
 const SignIn = () => {
   const [loading, setLoading] = useState(false);
@@ -27,12 +28,14 @@ const SignIn = () => {
 
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("userType", data.userType);
-        localStorage.setItem("userName", data.name || data.companyName);
+        const responseData = data.data || data;
+        localStorage.setItem("token", responseData.token);
+        localStorage.setItem("userType", responseData.user_type || responseData.userType);
+        localStorage.setItem("userName", responseData.name || responseData.company_name || responseData.companyName);
         navigate("/dashboard");
       } else {
-        alert("Invalid credentials");
+        const errorData = await response.json();
+        alert(errorData.error || "Invalid credentials");
       }
     } catch (error) {
       console.error("Sign in error:", error);

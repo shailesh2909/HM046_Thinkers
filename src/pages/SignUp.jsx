@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import { authAPI } from "../api/authAPI";
 
 const SignUp = () => {
   const [userType, setUserType] = useState("freelancer");
@@ -35,25 +36,30 @@ const SignUp = () => {
     setLoading(true);
 
     try {
+      // Use authAPI if available, otherwise fallback to direct fetch
+      const requestData = {
+        user_type: userType, // Backend expects snake_case
+        name: signUpData.name,
+        email: signUpData.email,
+        password: signUpData.password,
+      };
+
       const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userType,
-          name: signUpData.name,
-          email: signUpData.email,
-          password: signUpData.password,
-        }),
+        body: JSON.stringify(requestData),
       });
 
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem("token", data.token);
+        const responseData = data.data || data;
+        localStorage.setItem("token", responseData.token);
         localStorage.setItem("userType", userType);
         localStorage.setItem("userName", signUpData.name);
         navigate("/dashboard");
       } else {
-        alert("Sign up failed. Please try again.");
+        const errorData = await response.json();
+        alert(errorData.error || "Sign up failed. Please try again.");
       }
     } catch (error) {
       console.error("Sign up error:", error);

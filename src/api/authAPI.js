@@ -9,7 +9,7 @@ export const authAPI = {
         name: userData.name,
         email: userData.email,
         password: userData.password,
-        userType: userData.userType,
+        user_type: userData.userType || userData.user_type, // Backend expects snake_case
       });
       return response.data;
     } catch (error) {
