@@ -4,64 +4,66 @@ import Footer from "../components/Footer";
 
 const Landing = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-amber-50">
+    <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
 
       {/* Hero Section */}
-      <main className="flex-1 flex items-center justify-center px-6 py-32">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-6xl w-full items-center">
+      <main className="flex-1 flex items-center justify-center px-6 py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 max-w-7xl w-full items-center">
           
-          {/* Left Side - Welcome Message */}
-          <div className="text-gray-900">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight text-gray-900">
-              Welcome to Hackmatrix
+          {/* Left Side - Text */}
+          <div className="space-y-8">
+            <h1 className="text-6xl lg:text-7xl font-black text-black leading-tight">
+              Connect with Top Talent
             </h1>
-            <p className="text-xl text-gray-600 max-w-lg">
-              Connect with top talent or showcase your skills. Join thousands of professionals building successful projects together.
+            <p className="text-xl text-gray-700 max-w-lg leading-relaxed">
+              Find your perfect freelancer or land your dream project. Join thousands of professionals building successful projects together.
             </p>
-          </div>
-
-          {/* Right Side - CTA */}
-          <div className="bg-white rounded-lg p-8 border border-gray-200 shadow-sm">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Get Started</h2>
             
-            <div className="space-y-4">
-              <Link to="/signin" className="block">
-                <button className="w-full px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition">
+            <div className="flex flex-col gap-4 pt-4">
+              <Link to="/signin" className="w-full lg:w-auto">
+                <button className="w-full px-8 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition-all duration-200">
                   Sign In
                 </button>
               </Link>
-
-              {/* Create Account with hover dropdown */}
-              <div className="relative group">
-                <button className="w-full px-6 py-3 border-2 border-indigo-600 text-indigo-600 font-semibold rounded-lg bg-white hover:bg-indigo-50 transition">
-                  Sign Up
+              <Link to="/signup" className="w-full lg:w-auto">
+                <button className="w-full px-8 py-3 border-2 border-black text-black font-semibold rounded-lg hover:bg-black hover:text-white transition-all duration-200">
+                  Join Now
                 </button>
-
-                <div className="absolute right-0 mt-0 hidden group-hover:block z-10 w-full">
-                  <div className="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden min-w-max">
-                    <Link to="/signup?user=freelancer" className="block">
-                      <div className="px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition">
-                        Sign up as Freelancer
-                      </div>
-                    </Link>
-                    <Link to="/signup?user=company" className="block">
-                      <div className="px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition">
-                        Sign up as Company
-                      </div>
-                    </Link>
-                  </div>
-                </div>
-              </div>
+              </Link>
             </div>
-
-            <p className="text-gray-600 text-sm mt-6">
-              Join our platform to hire freelancers or get hired by leading companies.
-            </p>
           </div>
 
+          {/* Right Side - Image */}
+          <div className="flex items-center justify-center">
+            <img 
+              src="/img/landing.avif" 
+              alt="Professional freelancer connecting with clients"
+              className="w-full h-auto rounded-lg border-2 border-black object-cover"
+            />
+          </div>
         </div>
       </main>
+
+      {/* Features Section */}
+      <section className="px-6 py-16 bg-gray-50 border-t-2 border-black">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="space-y-3">
+              <h3 className="text-lg font-bold text-black">Fast</h3>
+              <p className="text-gray-700">Find projects and professionals quickly</p>
+            </div>
+            <div className="space-y-3">
+              <h3 className="text-lg font-bold text-black">Secure</h3>
+              <p className="text-gray-700">Verified professionals and safe transactions</p>
+            </div>
+            <div className="space-y-3">
+              <h3 className="text-lg font-bold text-black">Quality</h3>
+              <p className="text-gray-700">Access top talent and deliver excellence</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <Footer />
     </div>
