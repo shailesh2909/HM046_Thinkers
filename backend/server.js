@@ -3,7 +3,7 @@ const express = require('express');
 const passport = require('passport');
 const cors = require('cors');
 const { connectDB, sequelize } = require('./config/database');
-require('./config/passport'); // Load passport config
+// require('./config/passport'); // Temporarily disabled - needs User model fields
 const models = require('./models'); // Import all models with relationships
 
 const app = express();
@@ -16,18 +16,13 @@ app.use(express.urlencoded({ extended: true }));
 
 connectDB();
 
-// Sync models
-// Change this:
-// sequelize.sync({ alter: true });
-
-// To this (RUN ONCE, then change it back):
-sequelize.sync({ force: true }).then(() => {
-  console.log("Database cleared and resynced successfully.");
 // Sync Database (creates tables if they don't exist)
-sequelize.sync({ alter: true }).then(() => {
-  console.log('Database synced successfully');
+console.log('Starting database sync...');
+sequelize.sync({ force: true }).then(() => {
+  console.log('✅ Database synced successfully - All tables created');
+  console.log('Tables:', Object.keys(sequelize.models));
 }).catch((err) => {
-  console.error('Error syncing database:', err);
+  console.error('❌ Error syncing database:', err.message);
 });
 
 app.use('/api/auth', require('./routes/authRoutes'));
@@ -40,6 +35,19 @@ app.use('/api/website', require('./routes/websiteRoutes'));
 app.use('/api/experience', require('./routes/experienceRoutes'));
 app.use('/api/project', require('./routes/projectRoutes'));
 app.use('/api/user', require('./routes/completeProfileRoutes'));
+
+// Company Management Routes
+app.use('/api/company', require('./routes/companyRoutes'));
+app.use('/api/company-website', require('./routes/companyWebsiteRoutes'));
+app.use('/api/company-project', require('./routes/companyProjectRoutes'));
+app.use('/api/milestone', require('./routes/projectMilestoneRoutes'));
+app.use('/api/complete-company', require('./routes/completeCompanyRoutes'));
+
+// AI Applicant Matching Routes
+app.use('/api/matching', require('./routes/applicantMatchingRoutes'));
+
+// Resume Parsing Routes
+app.use('/api/resume', require('./routes/resumeParsingRoutes'));
 
 // Health check route
 app.get('/api/health', (req, res) => {
