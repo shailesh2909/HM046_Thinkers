@@ -3,9 +3,9 @@ const { sequelize } = require('../config/database');
 
 const User = sequelize.define('User', {
   id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4, // This line generates the ID automatically
+    primaryKey: true
   },
   email: {
     type: DataTypes.STRING,
@@ -16,10 +16,16 @@ const User = sequelize.define('User', {
   password: {
     type: DataTypes.STRING,
     allowNull: true // Allow null for OAuth users
+  },
+  googleId: {
+    type: DataTypes.STRING,
+    unique: true,
+    allowNull: true
+  },
+  user_type: {
+    type: DataTypes.ENUM('freelancer', 'company'),
+    defaultValue: 'freelancer'
   }
-}, {
-  timestamps: true,
-  tableName: 'Users'
 });
 
 module.exports = User;
