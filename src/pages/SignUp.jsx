@@ -114,7 +114,7 @@ const SignUp = () => {
                 disabled={loading}
                 className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Creating account..." : "NEXT"}
+                {loading ? "Creating account..." : "Sign Up"}
               </button>
             </form>
 
