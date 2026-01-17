@@ -1,20 +1,24 @@
+require('dotenv').config();
 const express = require('express');
+const passport = require('passport');
 const { connectDB, sequelize } = require('./config/database');
-const User = require('./models/User'); // Import models here
+require('./config/passport'); // Load passport config
 
 const app = express();
 app.use(express.json());
+app.use(passport.initialize());
 
-// Connect to Database
 connectDB();
 
-// Sync Database (creates tables if they don't exist)
-sequelize.sync({ alter: true }).then(() => {
-  console.log('Database synced');
+// Sync models
+// Change this:
+// sequelize.sync({ alter: true });
+
+// To this (RUN ONCE, then change it back):
+sequelize.sync({ force: true }).then(() => {
+  console.log("Database cleared and resynced successfully.");
 });
 
-// Example Route using a Controller
-app.use('/users', require('./routes/userRoutes'));
+app.use('/api/auth', require('./routes/authRoutes'));
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(process.env.PORT || 5000, () => console.log('Server Active'));
