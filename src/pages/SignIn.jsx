@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
 
 const SignIn = () => {
   const [userType, setUserType] = useState("freelancer");
@@ -46,7 +45,7 @@ const SignIn = () => {
 
   return (
     <>
-      <Navbar />
+      {/* Navbar intentionally removed on auth pages per design */}
       <div className="min-h-screen bg-amber-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="p-12 bg-white rounded-lg shadow-sm border border-gray-200">

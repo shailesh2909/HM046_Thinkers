@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const SignUp = () => {
   const [userType, setUserType] = useState("freelancer");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Sign Up State
   const [signUpData, setSignUpData] = useState({
@@ -45,6 +45,7 @@ const SignUp = () => {
         const data = await response.json();
         localStorage.setItem("token", data.token);
         localStorage.setItem("userType", userType);
+        // Redirect to dashboard after signup
         navigate("/dashboard");
       } else {
         alert("Sign up failed. Please try again.");
@@ -57,9 +58,14 @@ const SignUp = () => {
     }
   };
 
+  useEffect(() => {
+    const q = new URLSearchParams(location.search);
+    const u = q.get("user");
+    if (u === "freelancer" || u === "company") setUserType(u);
+  }, [location.search]);
+
   return (
     <>
-      <Navbar />
       <div className="min-h-screen bg-amber-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="p-12 bg-white rounded-lg shadow-sm border border-gray-200">
@@ -96,18 +102,6 @@ const SignUp = () => {
                 className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
                 required
               />
-
-              {/* User Type Dropdown */}
-              <div className="mb-4">
-                <select
-                  value={userType}
-                  onChange={(e) => setUserType(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition cursor-pointer"
-                >
-                  <option value="freelancer">Freelancer</option>
-                  <option value="company">Business</option>
-                </select>
-              </div>
 
               <button
                 type="submit"

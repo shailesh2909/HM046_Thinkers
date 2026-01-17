@@ -22,19 +22,47 @@ const Navbar = () => {
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-6">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              to={link.path}
-              className={`px-4 py-2 rounded-lg font-semibold transition duration-300 ${
-                location.pathname === link.path
-                  ? "bg-indigo-600 text-white shadow-md"
-                  : "text-gray-700 hover:text-indigo-600"
-              }`}
-            >
-              {link.name}
-            </Link>
-          ))}
+          <Link
+            to="/"
+            className={`px-4 py-2 rounded-lg font-semibold transition duration-300 ${
+              location.pathname === "/"
+                ? "bg-indigo-600 text-white shadow-md"
+                : "text-gray-700 hover:text-indigo-600"
+            }`}
+          >
+            Home
+          </Link>
+          <Link
+            to="/signin"
+            className={`px-4 py-2 rounded-lg font-semibold transition duration-300 ${
+              location.pathname === "/signin"
+                ? "bg-indigo-600 text-white shadow-md"
+                : "text-gray-700 hover:text-indigo-600"
+            }`}
+          >
+            Sign In
+          </Link>
+
+          {/* Sign Up Dropdown */}
+          <div className="relative group">
+            <button className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:text-indigo-600 transition">
+              Sign Up
+            </button>
+            <div className="absolute right-0 mt-0 hidden group-hover:block z-10">
+              <div className="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden min-w-max">
+                <Link to="/signup?user=freelancer" className="block">
+                  <div className="px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition">
+                    Sign up as Freelancer
+                  </div>
+                </Link>
+                <Link to="/signup?user=company" className="block">
+                  <div className="px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition">
+                    Sign up as Company
+                  </div>
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Mobile Menu Button */}
@@ -72,20 +100,45 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden bg-gray-50 shadow-md px-6 pb-4 flex flex-col gap-2 border-t border-gray-200">
-          {navLinks.map((link) => (
+          <Link
+            to="/"
+            className={`px-4 py-2 rounded-lg font-semibold transition duration-300 ${
+              location.pathname === "/"
+                ? "bg-indigo-600 text-white"
+                : "text-gray-700 hover:text-indigo-600"
+            }`}
+            onClick={() => setMenuOpen(false)}
+          >
+            Home
+          </Link>
+          <Link
+            to="/signin"
+            className={`px-4 py-2 rounded-lg font-semibold transition duration-300 ${
+              location.pathname === "/signin"
+                ? "bg-indigo-600 text-white"
+                : "text-gray-700 hover:text-indigo-600"
+            }`}
+            onClick={() => setMenuOpen(false)}
+          >
+            Sign In
+          </Link>
+          <div className="border-t border-gray-300 mt-2 pt-2">
+            <p className="text-gray-600 text-sm font-semibold px-4 py-2">Sign Up</p>
             <Link
-              key={link.name}
-              to={link.path}
-              className={`px-4 py-2 rounded-lg font-semibold transition duration-300 ${
-                location.pathname === link.path
-                  ? "bg-indigo-600 text-white"
-                  : "text-gray-700 hover:text-indigo-600"
-              }`}
+              to="/signup?user=freelancer"
+              className="px-4 py-2 text-gray-700 hover:text-indigo-600 transition text-sm"
               onClick={() => setMenuOpen(false)}
             >
-              {link.name}
+              As Freelancer
             </Link>
-          ))}
+            <Link
+              to="/signup?user=company"
+              className="block px-4 py-2 text-gray-700 hover:text-indigo-600 transition text-sm"
+              onClick={() => setMenuOpen(false)}
+            >
+              As Company
+            </Link>
+          </div>
         </div>
       )}
     </nav>

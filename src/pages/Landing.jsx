@@ -31,11 +31,28 @@ const Landing = () => {
                   Sign In
                 </button>
               </Link>
-              <Link to="/signup" className="block">
-                <button className="w-full px-6 py-3 border-2 border-indigo-600 text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 transition">
-                  Create Account
+
+              {/* Create Account with hover dropdown */}
+              <div className="relative group">
+                <button className="w-full px-6 py-3 border-2 border-indigo-600 text-indigo-600 font-semibold rounded-lg bg-white hover:bg-indigo-50 transition">
+                  Sign Up
                 </button>
-              </Link>
+
+                <div className="absolute right-0 mt-0 hidden group-hover:block z-10 w-full">
+                  <div className="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden min-w-max">
+                    <Link to="/signup?user=freelancer" className="block">
+                      <div className="px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition">
+                        Sign up as Freelancer
+                      </div>
+                    </Link>
+                    <Link to="/signup?user=company" className="block">
+                      <div className="px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition">
+                        Sign up as Company
+                      </div>
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <p className="text-gray-600 text-sm mt-6">
