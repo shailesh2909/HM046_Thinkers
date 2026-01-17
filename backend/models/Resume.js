@@ -8,9 +8,18 @@ const Resume = sequelize.define('Resume', {
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true
   },
+  // ADD THIS FIELD EXPLICITLY
+  userId: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: 'Users',
+      key: 'id'
+    }
+  },
   resume_url: {
     type: DataTypes.STRING,
-    allowNull: false // URL to PDF/Cloudinary
+    allowNull: false
   },
   resume_name: {
     type: DataTypes.STRING,
@@ -18,7 +27,7 @@ const Resume = sequelize.define('Resume', {
   }
 }, { timestamps: true });
 
-// Relationship: User has many Resumes
+// Relationships
 User.hasMany(Resume, { foreignKey: 'userId', onDelete: 'CASCADE' });
 Resume.belongsTo(User, { foreignKey: 'userId' });
 

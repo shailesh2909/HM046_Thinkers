@@ -13,7 +13,7 @@ router.get('/google/callback',
   (req, res) => {
     // Generate JWT for the OAuth user
     const token = require('jsonwebtoken').sign({ id: req.user.id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    res.redirect(`http://localhost:3000/login-success?token=${token}`);
+    res.redirect(`http://localhost:5432/login-success?token=${token}`);
   }
 );
 
