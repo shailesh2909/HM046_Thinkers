@@ -17,7 +17,6 @@
     "url": "https://github.com/shailesh2909/HM046_Thinkers/issues"
   },
   "homepage": "https://github.com/shailesh2909/HM046_Thinkers#readme",
-  "description": "",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -25,5 +24,6 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.11"
-  }
+  },
+  "description": ""
 }
