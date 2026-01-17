@@ -1,0 +1,198 @@
+{
+  "info": {
+    "name": "User Profile Management API",
+    "description": "Complete API collection for user profile management system",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Profile",
+      "item": [
+        {
+          "name": "Create/Update Profile",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": "http://localhost:5432/api/profile/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"profilePhoto\": \"https://example.com/photo.jpg\",\n  \"profileName\": \"John Doe\",\n  \"headline\": \"Full Stack Developer\",\n  \"currentPosition\": \"Senior Developer at Tech Corp\",\n  \"address\": \"123 Main St, City\",\n  \"birthDate\": \"1990-05-15\",\n  \"userBanner\": \"https://example.com/banner.jpg\",\n  \"aboutSection\": \"Passionate developer...\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5432/api/profile/1"
+          }
+        },
+        {
+          "name": "Delete Profile",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:5432/api/profile/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Education",
+      "item": [
+        {
+          "name": "Create Education",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": "http://localhost:5432/api/education/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"school\": \"Stanford University\",\n  \"degree\": \"Bachelor of Science\",\n  \"fieldOfStudy\": \"Computer Science\",\n  \"startDate\": \"2015-09-01\",\n  \"endDate\": \"2019-06-15\",\n  \"grade\": \"3.8 GPA\",\n  \"description\": \"Focused on AI and ML\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Education",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5432/api/education/1"
+          }
+        },
+        {
+          "name": "Update Education",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": "http://localhost:5432/api/education/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Updated description\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Education",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:5432/api/education/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contact Info",
+      "item": [
+        {
+          "name": "Create Contact",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": "http://localhost:5432/api/contact/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"+1-555-123-4567\",\n  \"phoneType\": \"mobile\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Contacts",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5432/api/contact/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Website",
+      "item": [
+        {
+          "name": "Create Website",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": "http://localhost:5432/api/website/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"websiteUrl\": \"https://johndoe.dev\",\n  \"websiteType\": \"portfolio\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Websites",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5432/api/website/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Experience",
+      "item": [
+        {
+          "name": "Create Experience",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": "http://localhost:5432/api/experience/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Senior Software Engineer\",\n  \"employmentType\": \"full-time\",\n  \"companyOrganization\": \"Tech Corp\",\n  \"startDate\": \"2020-01-15\",\n  \"endDate\": null,\n  \"location\": \"San Francisco, CA\",\n  \"locationType\": \"hybrid\",\n  \"description\": \"Lead development of microservices\",\n  \"skills\": [\"JavaScript\", \"React\", \"Node.js\"],\n  \"media\": [\"https://example.com/screenshot.jpg\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Experiences",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5432/api/experience/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Project",
+      "item": [
+        {
+          "name": "Create Project",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": "http://localhost:5432/api/project/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"projectName\": \"E-Commerce Platform\",\n  \"description\": \"Full-stack e-commerce solution\",\n  \"media\": [\"demo.jpg\"],\n  \"startDate\": \"2023-01-01\",\n  \"endDate\": \"2023-06-30\",\n  \"associatedWith\": \"Tech Corp\",\n  \"projectUrl\": \"https://project.com\",\n  \"skills\": [\"React\", \"Node.js\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Projects",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5432/api/project/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Complete Profile",
+      "item": [
+        {
+          "name": "Get Complete Profile",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5432/api/user/1/complete"
+          }
+        },
+        {
+          "name": "Get Profile Stats",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5432/api/user/1/stats"
+          }
+        }
+      ]
+    }
+  ]
+}
