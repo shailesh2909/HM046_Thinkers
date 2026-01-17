@@ -220,7 +220,10 @@ const Dashboard = ({ userType = 'freelancer', userName = 'User' }) => {
                           <span className="font-bold text-gray-900 text-base">{app.budget}</span>
                         </div>
                         <button 
-                          onClick={() => navigate(`/project-details/${app.id}`)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/project-details/${app.id}`);
+                          }}
                           className="flex items-center space-x-2 text-gray-900 hover:text-black text-sm font-bold group-hover:underline px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-all">
                           <FaEye />
                           <span>View</span>
