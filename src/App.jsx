@@ -25,7 +25,7 @@ const ProtectedRoute = ({ children, isAuthenticated }) => {
 }
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [userType, setUserType] = useState('freelancer')
   const [userName, setUserName] = useState('')
   const [loading, setLoading] = useState(true)
