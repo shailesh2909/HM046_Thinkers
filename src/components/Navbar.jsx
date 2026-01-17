@@ -12,11 +12,11 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="w-full bg-white shadow-md sticky top-0 z-50">
+    <nav className="w-full bg-gradient-to-r from-teal-600 to-teal-500 shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         
         {/* Logo */}
-        <Link to="/" className="text-2xl md:text-3xl font-bold text-blue-600 hover:text-blue-700 transition">
+        <Link to="/" className="text-2xl md:text-3xl font-bold text-white hover:text-gray-100 transition transform hover:scale-110">
           Lelo
         </Link>
 
@@ -26,10 +26,10 @@ const Navbar = () => {
             <Link
               key={link.name}
               to={link.path}
-              className={`px-3 py-2 rounded-md font-medium transition ${
+              className={`px-4 py-2 rounded-lg font-semibold transition duration-300 ${
                 location.pathname === link.path
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-700 hover:bg-blue-100 hover:text-blue-600"
+                  ? "bg-white text-teal-600 shadow-md"
+                  : "text-white hover:bg-white/20"
               }`}
             >
               {link.name}
@@ -41,7 +41,7 @@ const Navbar = () => {
         <div className="md:hidden">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="text-gray-700 hover:text-blue-600 focus:outline-none"
+            className="text-white hover:text-gray-100 focus:outline-none transition"
           >
             <svg
               className="w-6 h-6"
@@ -71,15 +71,15 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div className="md:hidden bg-white shadow-md px-6 pb-4 flex flex-col gap-2">
+        <div className="md:hidden bg-teal-600 shadow-md px-6 pb-4 flex flex-col gap-2">
           {navLinks.map((link) => (
             <Link
               key={link.name}
               to={link.path}
-              className={`px-3 py-2 rounded-md font-medium transition ${
+              className={`px-4 py-2 rounded-lg font-semibold transition duration-300 ${
                 location.pathname === link.path
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-700 hover:bg-blue-100 hover:text-blue-600"
+                  ? "bg-white text-teal-600"
+                  : "text-white hover:bg-white/20"
               }`}
               onClick={() => setMenuOpen(false)}
             >
