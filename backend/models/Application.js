@@ -1,7 +1,5 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
-const User = require('./User');
-const Resume = require('./Resume');
 
 const Application = sequelize.define('Application', {
   id: {
@@ -9,23 +7,34 @@ const Application = sequelize.define('Application', {
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true
   },
+  // Explicitly defining Foreign Keys helps prevent issues
+  userId: {
+    type: DataTypes.UUID,
+    allowNull: false
+  },
+  projectId: {
+    type: DataTypes.UUID,
+    allowNull: false
+  },
+  resumeId: {
+    type: DataTypes.UUID,
+    allowNull: false
+  },
+  coverLetter: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
   status: {
     type: DataTypes.ENUM('pending', 'reviewed', 'accepted', 'rejected'),
     defaultValue: 'pending'
   },
   appliedAt: {
     type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW // Explicit timestamp for the application event
+    defaultValue: DataTypes.NOW
   }
 }, { 
-  timestamps: true // This will also give you createdAt/updatedAt automatically
+  timestamps: true,
+  tableName: 'applications'
 });
-
-// Relationships
-User.hasMany(Application, { foreignKey: 'userId' });
-Application.belongsTo(User, { foreignKey: 'userId' });
-
-Resume.hasMany(Application, { foreignKey: 'resumeId' });
-Application.belongsTo(Resume, { foreignKey: 'resumeId' });
 
 module.exports = Application;

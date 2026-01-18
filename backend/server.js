@@ -57,6 +57,7 @@ const completeCompanyRoutes = require('./routes/completeCompanyRoutes');
 
 const applicantMatchingRoutes = require('./routes/applicantMatchingRoutes');
 const resumeParsingRoutes = require('./routes/resumeParsingRoutes');
+const applicationRoutes = require('./routes/applicationRoutes');
 
 /**
  * ==============================
@@ -153,6 +154,7 @@ app.use('/api/complete-company', completeCompanyRoutes);
 
 app.use('/api/matching', applicantMatchingRoutes);
 app.use('/api/resume', resumeParsingRoutes);
+app.use('/api/application', applicationRoutes);
 
 /**
  * ==============================
@@ -171,7 +173,7 @@ app.get('/api/health', (req, res) => {
 const startApp = async () => {
   try {
     await connectDB();
-    await sequelize.sync({ force: true });
+    // await sequelize.sync({ alter: true });
 
     const PORT = process.env.PORT || 5000;
     server.listen(PORT, () => {

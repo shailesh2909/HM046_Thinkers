@@ -8,11 +8,11 @@ const Message = sequelize.define('Message', {
     primaryKey: true
   },
   senderId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: false
   },
   receiverId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: false
   },
   content: {

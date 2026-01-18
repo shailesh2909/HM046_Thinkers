@@ -21,6 +21,7 @@ const CompanyProject = sequelize.define('CompanyProject', {
     allowNull: false,
     field: 'project_name'
   },
+  
   description: {
     type: DataTypes.TEXT,
     allowNull: false
@@ -48,11 +49,22 @@ const CompanyProject = sequelize.define('CompanyProject', {
   projectStatus: {
     type: DataTypes.STRING(30),
     allowNull: true,
-    defaultValue: 'open',
+    defaultValue: 'open', // Changed to match your form logic if needed
     field: 'project_status',
     validate: {
       isIn: [['draft', 'open', 'in_progress', 'completed', 'cancelled']]
     }
+  },
+  // --- ADDED FIELDS TO MATCH PAYLOAD ---
+  skills: {
+    type: DataTypes.ARRAY(DataTypes.STRING), // Stores ["React", "Node"]
+    allowNull: true,
+    defaultValue: []
+  },
+  projectCategory: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    field: 'project_category'
   }
 }, {
   timestamps: true,

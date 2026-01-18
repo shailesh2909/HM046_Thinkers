@@ -1,15 +1,18 @@
 const Application = require('../models/Application');
 const User = require('../models/User');
 const Resume = require('../models/Resume');
+const CompanyProject = require('../models/CompanyProject');
 const path = require('path');
 
 // Freelancer side: Apply for a job
 exports.applyToJob = async (req, res) => {
   try {
-    const { resumeId } = req.body;
+    const { projectId, resumeId, coverLetter } = req.body;
     const application = await Application.create({
       userId: req.user.id,
-      resumeId
+      projectId,
+      resumeId,
+      coverLetter
     });
     res.status(201).json(application);
   } catch (err) {
@@ -23,6 +26,23 @@ exports.getCompanyApplications = async (req, res) => {
     const apps = await Application.findAll({
       include: [
         { model: User, attributes: ['email'] },
+        { model: Resume, attributes: ['resume_name', 'resume_url'] },
+        { model: CompanyProject, attributes: ['projectName', 'description', 'totalBudget'] }
+      ]
+    });
+    res.json(apps);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Freelancer side: Get my applications
+exports.getMyApplications = async (req, res) => {
+  try {
+    const apps = await Application.findAll({
+      where: { userId: req.user.id },
+      include: [
+        { model: CompanyProject, attributes: ['projectName', 'description', 'totalBudget', 'companyId'] },
         { model: Resume, attributes: ['resume_name', 'resume_url'] }
       ]
     });

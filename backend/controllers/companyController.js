@@ -165,3 +165,54 @@ exports.getCompaniesByAuthUser = async (req, res) => {
     });
   }
 };
+// Update OR Create Company Profile (Upsert)
+exports.updateCompanyProfile = async (req, res) => {
+  try {
+    // 1. Get User ID from JWT (ensure your auth middleware sets req.user)
+    const authUserId = req.user.id; 
+    const updateData = req.body;
+
+    console.log("Upserting Company Profile for User:", authUserId);
+    console.log("Data:", updateData);
+
+    // 2. Check if the company profile already exists
+    const existingCompany = await Company.findOne({ where: { authUserId } });
+
+    let company;
+    let message;
+    let statusCode;
+
+    if (existingCompany) {
+      // --- UPDATE SCENARIO ---
+      // Update existing record
+      await existingCompany.update(updateData);
+      company = existingCompany; // Use the updated instance
+      message = 'Company profile updated successfully';
+      statusCode = 200;
+    } else {
+      // --- CREATE SCENARIO ---
+      // Create new record, enforcing the link to the auth user
+      const newCompanyData = {
+        ...updateData,
+        authUserId: authUserId // Crucial: Link it to the user!
+      };
+      company = await Company.create(newCompanyData);
+      message = 'Company profile created successfully';
+      statusCode = 201; // 201 Created
+    }
+
+    // 3. Return the result
+    res.status(statusCode).json({
+      success: true,
+      message: message,
+      data: company
+    });
+
+  } catch (error) {
+    console.error("Upsert Error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message || "Failed to update company profile"
+    });
+  }
+};

@@ -3,18 +3,14 @@ const { sequelize } = require('../config/database');
 
 const UserProfile = sequelize.define('UserProfile', {
   id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4, // Generates unique ID automatically
+    primaryKey: true
   },
   userId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: false,
-    unique: true,
-    references: {
-      model: 'Users',
-      key: 'id'
-    }
+    unique: true
   },
   profilePhoto: {
     type: DataTypes.STRING,

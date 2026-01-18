@@ -1,10 +1,20 @@
-const { CompanyWebsite } = require('../models');
+const { CompanyWebsite, Company } = require('../models');
 
 // Create Company Website
 exports.createCompanyWebsite = async (req, res) => {
   try {
-    const { companyId } = req.params;
-    const websiteData = { companyId, ...req.body };
+    const authUserId = req.user.id;
+    
+    // Find the company for this user
+    const company = await Company.findOne({ where: { authUserId } });
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: 'Company not found for this user'
+      });
+    }
+
+    const websiteData = { companyId: company.id, ...req.body };
 
     const website = await CompanyWebsite.create(websiteData);
 
@@ -24,10 +34,19 @@ exports.createCompanyWebsite = async (req, res) => {
 // Get All Company Websites
 exports.getCompanyWebsites = async (req, res) => {
   try {
-    const { companyId } = req.params;
+    const authUserId = req.user.id;
+    
+    // Find the company for this user
+    const company = await Company.findOne({ where: { authUserId } });
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: 'Company not found for this user'
+      });
+    }
 
     const websites = await CompanyWebsite.findAll({
-      where: { companyId }
+      where: { companyId: company.id }
     });
 
     res.status(200).json({

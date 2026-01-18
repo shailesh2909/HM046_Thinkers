@@ -10,12 +10,8 @@ const Resume = sequelize.define('Resume', {
   },
   // ADD THIS FIELD EXPLICITLY
   userId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'Users',
-      key: 'id'
-    }
+    type: DataTypes.UUID,
+    allowNull: false
   },
   resume_url: {
     type: DataTypes.STRING,
