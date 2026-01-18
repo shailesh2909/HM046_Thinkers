@@ -10,7 +10,7 @@ const Resume = sequelize.define('Resume', {
   },
   // ADD THIS FIELD EXPLICITLY
   userId: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: 'Users',
