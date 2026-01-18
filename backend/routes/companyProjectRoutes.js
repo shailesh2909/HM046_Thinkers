@@ -5,22 +5,31 @@ const companyProjectController = require('../controllers/companyProjectControlle
 
 // Company Project Routes
 
-// 1. Create a Project
-// Matches POST /api/company-projects/:companyId
-router.post('/:companyId', companyProjectController.createCompanyProject);
+// IMPORTANT: Specific routes must come BEFORE parameter routes
 
-// 2. Get All Projects for a Company
-// Matches GET /api/company-projects/:companyId
-router.get('/:companyId', companyProjectController.getCompanyProjects);
+// 1. Get All Projects from All Companies (for freelancers)
+// Matches GET /api/company-project/all
+router.get('/all', companyProjectController.getAllProjects);
 
-// 3. Get Projects by Status
-// Matches GET /api/company-projects/:companyId/status/:status
-// Note: Placed before /:id generic routes to avoid conflict if IDs look like strings
+// 2. Get All Projects by Auth User ID
+// Matches GET /api/company-project/user/:authUserId
+router.get('/user/:authUserId', companyProjectController.getCompanyProjectsByAuthUser);
+
+// 3. Get Single Project by ID
+// Matches GET /api/company-project/single/:id
+router.get('/single/:id', companyProjectController.getCompanyProjectById);
+
+// 4. Get Projects by Status
+// Matches GET /api/company-project/:companyId/status/:status
 router.get('/:companyId/status/:status', companyProjectController.getProjectsByStatus);
 
-// 4. Get Single Project by ID
-// Matches GET /api/company-projects/single/:id
-router.get('/single/:id', companyProjectController.getCompanyProjectById);
+// 5. Create a Project
+// Matches POST /api/company-project/:companyId
+router.post('/:companyId', companyProjectController.createCompanyProject);
+
+// 6. Get All Projects for a Company
+// Matches GET /api/company-project/:companyId
+router.get('/:companyId', companyProjectController.getCompanyProjects);
 
 // 5. Update Project
 // Matches PUT /api/company-projects/:id

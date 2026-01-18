@@ -8,7 +8,6 @@ const Resume = sequelize.define('Resume', {
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true
   },
-  // ADD THIS FIELD EXPLICITLY
   userId: {
     type: DataTypes.UUID,
     allowNull: false
@@ -21,7 +20,10 @@ const Resume = sequelize.define('Resume', {
     type: DataTypes.STRING,
     defaultValue: 'My Resume'
   }
-}, { timestamps: true });
+}, { 
+  timestamps: true,
+  tableName: 'Resumes'
+});
 
 // Relationships
 User.hasMany(Resume, { foreignKey: 'userId', onDelete: 'CASCADE' });

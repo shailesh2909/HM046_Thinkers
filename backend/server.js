@@ -57,6 +57,7 @@ const completeCompanyRoutes = require('./routes/completeCompanyRoutes');
 
 const applicantMatchingRoutes = require('./routes/applicantMatchingRoutes');
 const resumeParsingRoutes = require('./routes/resumeParsingRoutes');
+const resumeRoutes = require('./routes/resumeRoutes');
 const applicationRoutes = require('./routes/applicationRoutes');
 
 /**
@@ -153,7 +154,8 @@ app.use('/api/milestone', projectMilestoneRoutes);
 app.use('/api/complete-company', completeCompanyRoutes);
 
 app.use('/api/matching', applicantMatchingRoutes);
-app.use('/api/resume', resumeParsingRoutes);
+app.use('/api/resume-parsing', resumeParsingRoutes);
+app.use('/api/resume', resumeRoutes);
 app.use('/api/application', applicationRoutes);
 
 /**

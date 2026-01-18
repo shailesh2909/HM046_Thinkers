@@ -37,8 +37,41 @@ exports.getCompanyProjects = async (req, res) => {
 
     const projects = await CompanyProject.findAll({
       where: { companyId },
-      // FIX: Use 'createdAt' (camelCase), not 'created_at'
-      order: [['createdAt', 'DESC']] 
+      order: [['created_at', 'DESC']] 
+    });
+
+    res.status(200).json({
+      success: true,
+      data: projects
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// Get Company Projects by Auth User ID
+exports.getCompanyProjectsByAuthUser = async (req, res) => {
+  try {
+    const { authUserId } = req.params;
+    
+    // First find the company by auth user ID
+    const { Company } = require('../models');
+    const company = await Company.findOne({ where: { authUserId } });
+    
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: 'Company not found for this user'
+      });
+    }
+
+    // Then get all projects for that company
+    const projects = await CompanyProject.findAll({
+      where: { companyId: company.id },
+      order: [['created_at', 'DESC']] 
     });
 
     res.status(200).json({
@@ -150,8 +183,7 @@ exports.getProjectsByStatus = async (req, res) => {
         companyId,
         projectStatus: status
       },
-      // FIX: Use 'createdAt' (camelCase)
-      order: [['createdAt', 'DESC']] 
+      order: [['created_at', 'DESC']] 
     });
 
     res.status(200).json({
@@ -170,11 +202,13 @@ exports.getProjectsByStatus = async (req, res) => {
 exports.getAllProjects = async (req, res) => {
   try {
     const projects = await CompanyProject.findAll({
-      where: { projectStatus: 'open' }, // Only show open projects
+      where: { 
+        projectStatus: ['open', 'draft'] // Show open and draft projects
+      },
       include: [
-        { model: require('../models').Company, attributes: ['companyName', 'email'] }
+        { model: require('../models').Company, attributes: ['companyName', 'contactEmail', 'location'] }
       ],
-      order: [['createdAt', 'DESC']]
+      order: [['created_at', 'DESC']]
     });
 
     res.status(200).json({

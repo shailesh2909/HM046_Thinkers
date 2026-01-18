@@ -7,7 +7,6 @@ const Application = sequelize.define('Application', {
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true
   },
-  // Explicitly defining Foreign Keys helps prevent issues
   userId: {
     type: DataTypes.UUID,
     allowNull: false
