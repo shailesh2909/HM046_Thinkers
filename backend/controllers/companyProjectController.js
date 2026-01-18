@@ -1,4 +1,36 @@
 const { CompanyProject } = require('../models');
+const { Op } = require('sequelize');
+
+// Get All Projects from All Companies (for freelancers to browse)
+exports.getAllProjects = async (req, res) => {
+  try {
+    const projects = await CompanyProject.findAll({
+      where: {
+        projectStatus: {
+          [Op.in]: ['open', 'draft']
+        }
+      },
+      include: [
+        {
+          model: require('../models').Company,
+          attributes: ['companyName', 'contactEmail', 'location']
+        }
+      ],
+      order: [['created_at', 'DESC']]
+    });
+
+    res.status(200).json({
+      success: true,
+      data: projects
+    });
+  } catch (error) {
+    console.error('Get all projects error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
 
 // Create Company Project
 exports.createCompanyProject = async (req, res) => {
@@ -198,15 +230,19 @@ exports.getProjectsByStatus = async (req, res) => {
   }
 };
 
-// Get All Projects from All Companies (for freelancers to browse)
 exports.getAllProjects = async (req, res) => {
   try {
     const projects = await CompanyProject.findAll({
-      where: { 
-        projectStatus: ['open', 'draft'] // Show open and draft projects
+      where: {
+        projectStatus: {
+          [Op.in]: ['open', 'draft']
+        }
       },
       include: [
-        { model: require('../models').Company, attributes: ['companyName', 'contactEmail', 'location'] }
+        {
+          model: require('../models').Company,
+          attributes: ['companyName', 'contactEmail', 'location']
+        }
       ],
       order: [['created_at', 'DESC']]
     });
@@ -216,6 +252,7 @@ exports.getAllProjects = async (req, res) => {
       data: projects
     });
   } catch (error) {
+    console.error('Get all projects error:', error);
     res.status(500).json({
       success: false,
       message: error.message
