@@ -42,7 +42,7 @@ const Dashboard = ({ userType = 'freelancer', userName = 'User' }) => {
         if (userType === 'company') {
           // Fetch company projects and applications
           const [projectsResponse, applicationsResponse] = await Promise.all([
-            companyProjectAPI.getProjects(userId),
+            companyProjectAPI.getProjectsByAuthUser(userId),
             applicationAPI.getCompanyApplications()
           ]);
           setProjects(projectsResponse.data || []);

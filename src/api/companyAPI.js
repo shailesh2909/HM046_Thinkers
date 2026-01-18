@@ -1,6 +1,21 @@
 import apiClient from './axiosConfig';
 
 export const companyAPI = {
+  // Get current company profile (authenticated)
+  getProfile: async () => {
+    try {
+      const userId = localStorage.getItem('userId');
+      const response = await apiClient.get(`/company/user/${userId}`);
+      // Return the first company if multiple exist, or the single company
+      const companyData = Array.isArray(response.data.data) 
+        ? response.data.data[0] 
+        : response.data.data;
+      return { ...response.data, data: companyData };
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   // 1. Get company by auth user ID
   // MATCHES BACKEND: router.get('/user/:authUserId', ...)
   getCompanyByAuthUserId: async (authUserId) => {

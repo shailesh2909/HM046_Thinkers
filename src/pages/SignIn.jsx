@@ -28,7 +28,8 @@ const SignIn = () => {
       localStorage.setItem("userId", response.user_id);
       localStorage.setItem("userName", response.userName);
 
-      navigate("/dashboard");
+      // Reload to update auth state and redirect
+      window.location.href = "/dashboard";
       
     } catch (error) {
       console.error("Sign in error:", error);

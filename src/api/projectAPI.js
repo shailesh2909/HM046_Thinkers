@@ -75,6 +75,16 @@ export const companyProjectAPI = {
     }
   },
 
+  // Get all projects by auth user ID
+  getProjectsByAuthUser: async (authUserId) => {
+    try {
+      const response = await apiClient.get(`/company-project/user/${authUserId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   // Get projects by status
   getProjectsByStatus: async (companyId, status) => {
     try {

@@ -20,7 +20,7 @@ const MyProjects = () => {
           return;
         }
 
-        const response = await companyProjectAPI.getProjects(userId);
+        const response = await companyProjectAPI.getProjectsByAuthUser(userId);
         setProjects(response.data || []);
         setLoading(false);
       } catch (err) {
