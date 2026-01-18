@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { authAPI } from "../api/authAPI";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:5432';
 const SignUp = () => {
   const [userType, setUserType] = useState("freelancer");
   const [loading, setLoading] = useState(false);
@@ -15,7 +16,6 @@ const SignUp = () => {
   }, [location.search]);
 
   const [signUpData, setSignUpData] = useState({
-    name: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -36,34 +36,20 @@ const SignUp = () => {
     setLoading(true);
 
     try {
-      // Use authAPI if available, otherwise fallback to direct fetch
       const requestData = {
-        user_type: userType, // Backend expects snake_case
-        name: signUpData.name,
+        user_type: userType,
         email: signUpData.email,
         password: signUpData.password,
       };
 
-      const response = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestData),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const responseData = data.data || data;
-        localStorage.setItem("token", responseData.token);
-        localStorage.setItem("userType", userType);
-        localStorage.setItem("userName", signUpData.name);
-        navigate("/dashboard");
-      } else {
-        const errorData = await response.json();
-        alert(errorData.error || "Sign up failed. Please try again.");
-      }
+      const response = await authAPI.signup(requestData);
+      
+      alert("Account created successfully! Please sign in.");
+      navigate("/signin");
+      
     } catch (error) {
       console.error("Sign up error:", error);
-      alert("Sign up failed. Please try again.");
+      alert(error || "Sign up failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -82,18 +68,6 @@ const SignUp = () => {
 
           {/* Form */}
           <form onSubmit={handleSignUpSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold text-black mb-2">Full Name</label>
-              <input
-                type="text"
-                name="name"
-                placeholder="John Doe"
-                value={signUpData.name}
-                onChange={handleSignUpChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-black transition"
-                required
-              />
-            </div>
 
             <div>
               <label className="block text-sm font-semibold text-black mb-2">Email</label>

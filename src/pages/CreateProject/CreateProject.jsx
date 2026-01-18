@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { FaArrowLeft, FaPlus, FaTrash, FaDollarSign, FaCoins, FaCheck } from 'react-icons/fa';
+import { FaArrowLeft, FaPlus, FaTrash, FaCoins, FaCheck } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { projectAPI, projectMilestonesAPI } from '../../api/projectAPI';
+import { companyProjectAPI, projectMilestoneAPI } from '../../api/projectAPI';
+import { companyAPI } from '../../api/companyAPI';
 
 const CreateProject = ({ userType, userName }) => {
   const navigate = useNavigate();
   
+  // --- State Management ---
   const [formData, setFormData] = useState({
     projectName: '',
     projectDescription: '',
@@ -26,10 +28,14 @@ const CreateProject = ({ userType, userName }) => {
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
 
+  // --- Helper Functions ---
+
   // Calculate tokens from budget (example: $1 = 1 token)
   const calculateTokens = (budget) => {
     return Math.floor(parseFloat(budget) || 0);
   };
+
+  // --- Event Handlers ---
 
   const handleBudgetChange = (e) => {
     const budget = e.target.value;
@@ -43,6 +49,8 @@ const CreateProject = ({ userType, userName }) => {
     setFormData({ ...formData, [name]: value });
   };
 
+  // --- Milestone Logic ---
+
   const handleMilestoneChange = (id, field, value) => {
     setMilestones(
       milestones.map(milestone =>
@@ -53,7 +61,10 @@ const CreateProject = ({ userType, userName }) => {
 
   const addMilestone = () => {
     const newId = Math.max(...milestones.map(m => m.id), 0) + 1;
-    setMilestones([...milestones, { id: newId, name: '', description: '', tokenAllocation: 0, order: milestones.length + 1 }]);
+    setMilestones([
+      ...milestones, 
+      { id: newId, name: '', description: '', tokenAllocation: 0, order: milestones.length + 1 }
+    ]);
   };
 
   const removeMilestone = (id) => {
@@ -62,7 +73,6 @@ const CreateProject = ({ userType, userName }) => {
     }
   };
 
-  // Auto-distribute tokens across milestones
   const autoDistributeTokens = () => {
     if (milestones.length === 0 || tokens === 0) return;
     
@@ -81,6 +91,8 @@ const CreateProject = ({ userType, userName }) => {
     return milestones.reduce((sum, m) => sum + (parseInt(m.tokenAllocation) || 0), 0);
   };
 
+  // --- Validation & Submission ---
+
   const validateForm = () => {
     const newErrors = {};
     
@@ -92,7 +104,7 @@ const CreateProject = ({ userType, userName }) => {
     if (!formData.skills.trim()) newErrors.skills = 'At least one skill is required';
     
     // Validate milestones
-    milestones.forEach((milestone, index) => {
+    milestones.forEach((milestone) => {
       if (!milestone.name.trim()) newErrors[`milestone${milestone.id}Name`] = 'Milestone name is required';
       if (milestone.tokenAllocation <= 0) newErrors[`milestone${milestone.id}Tokens`] = 'Token allocation must be greater than 0';
     });
@@ -107,51 +119,103 @@ const CreateProject = ({ userType, userName }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (validateForm()) {
-      try {
-        // 1. Create the project
-        const projectResponse = await projectAPI.createProject({
-          projectName: formData.projectName,
-          description: formData.projectDescription,
-          totalBudget: parseFloat(formData.totalBudget),
-          currency: formData.currency,
-          startDate: formData.startDate,
-          endDate: formData.endDate,
-          projectStatus: formData.projectStatus
-        });
 
-        const projectId = projectResponse.data?.id || projectResponse.id;
+    // 1. Validate Form First
+    if (!validateForm()) {
+      console.log("Validation failed", errors);
+      return;
+    }
 
-        // 2. Create milestones for the project
-        const milestonePromises = milestones.map((milestone, index) => 
-          projectMilestonesAPI.createMilestone({
-            projectId: projectId,
-            milestoneTitle: milestone.name,
-            description: milestone.description,
-            amount: parseFloat(milestone.tokenAllocation),
-            orderNo: milestone.order,
-            startDate: formData.startDate,
-            endDate: formData.endDate,
-            milestoneStatus: 'pending'
-          })
-        );
+    // 2. Check Authentication (removed - now done inside try block)
 
-        await Promise.all(milestonePromises);
-
-        console.log('Project and milestones created successfully');
-        setSubmitted(true);
-        
-        // Redirect after 2 seconds
-        setTimeout(() => {
-          navigate('/my-projects');
-        }, 2000);
-      } catch (error) {
-        console.error('Error creating project:', error);
-        alert('Failed to create project. Please try again.');
+    try {
+      // 3. Get Company ID for the authenticated user
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
+        alert("User ID not found. Please log in again.");
+        return;
       }
+
+      console.log("Getting company for user ID:", userId);
+      const companyResponse = await companyAPI.getCompanyByAuthUserId(userId);
+      
+      if (!companyResponse.data || companyResponse.data.length === 0) {
+        alert("No company profile found. Please complete your company profile first.");
+        navigate('/profile');
+        return;
+      }
+      
+      const companyId = companyResponse.data[0].id; // Get the first company
+      console.log("Found company ID:", companyId);
+
+      // 4. Prepare Project Payload
+      // We convert numbers here to ensure backend receives correct types
+      const projectPayload = {
+        projectName: formData.projectName,
+        description: formData.projectDescription,
+        totalBudget: parseFloat(formData.totalBudget), // Ensure this is a number
+        currency: formData.currency,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        projectStatus: 'draft', // Force draft initially
+        skills: formData.skills.split(',').map(skill => skill.trim()),
+        projectCategory: formData.projectCategory
+      };
+
+      console.log("Submitting Project Payload:", projectPayload);
+
+      // 5. Call Create Project API with companyId
+      const response = await companyProjectAPI.createProject(companyId, projectPayload);
+      
+      console.log("Project API Response:", response);
+
+      // 6. Extract Project ID safely
+      // Based on your Controller: res.json({ success: true, data: project })
+      // Based on your API: returns response.data
+      // So 'response' here IS { success: true, data: { id: 1, ... } }
+      const projectId = response?.data?.id;
+
+      if (!projectId) {
+        throw new Error("Project created, but ID was missing in the server response.");
+      }
+
+      // 7. Prepare and Upload Milestones
+      // We wait for the project ID, then map the milestones
+      const milestonePromises = milestones.map((milestone) => {
+        return projectMilestoneAPI.createMilestone(projectId, {
+          milestoneTitle: milestone.name,      // Map 'name' to 'milestoneTitle'
+          description: milestone.description,
+          amount: parseFloat(milestone.tokenAllocation), // Ensure number
+          orderNo: milestone.order,
+          startDate: formData.startDate,       // Inherit project dates
+          endDate: formData.endDate,           // Inherit project dates
+          milestoneStatus: 'pending'
+        });
+      });
+
+      // Execute all milestone creations in parallel
+      await Promise.all(milestonePromises);
+
+      // 8. Success Handling
+      console.log('All steps completed successfully');
+      setSubmitted(true);
+      
+      setTimeout(() => {
+        navigate('/my-projects');
+      }, 2000);
+
+    } catch (error) {
+      console.error('Submission Error:', error);
+      
+      // Extract the exact error message from backend if available
+      const backendErrorMessage = error.response?.data?.message || error.message || 'Failed to create project';
+      
+      alert(`Error: ${backendErrorMessage}`);
+      setSubmitted(false);
     }
   };
+
+  // --- Render ---
 
   if (submitted) {
     return (

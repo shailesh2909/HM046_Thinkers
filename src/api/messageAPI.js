@@ -2,50 +2,30 @@ import apiClient from './axiosConfig';
 
 // Messaging APIs
 export const messageAPI = {
-  // Get all conversations
-  getConversations: async (pagination = {}) => {
+  // Get chat history with another user
+  getChatHistory: async (otherUserId) => {
     try {
-      const response = await apiClient.get('/messages/conversations', {
-        params: pagination,
-      });
+      const response = await apiClient.get(`/chat/history/${otherUserId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
 
-  // Get messages in a conversation
-  getMessages: async (conversationId, pagination = {}) => {
+  // Send message (this would typically be done via Socket.IO)
+  sendMessage: async (receiverId, content) => {
     try {
-      const response = await apiClient.get(`/messages/conversations/${conversationId}`, {
-        params: pagination,
+      // This endpoint might not exist, as messages are sent via Socket.IO
+      const response = await apiClient.post('/chat/send', {
+        receiverId,
+        content
       });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
-  },
-
-  // Send message
-  sendMessage: async (conversationId, messageData) => {
-    try {
-      const response = await apiClient.post(`/messages/conversations/${conversationId}`, {
-        content: messageData.content,
-        attachments: messageData.attachments,
-      });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-
-  // Create new conversation
-  startConversation: async (userId) => {
-    try {
-      const response = await apiClient.post('/messages/conversations', {
-        userId,
-      });
-      return response.data;
+  }
+};
     } catch (error) {
       throw error.response?.data || error.message;
     }
@@ -59,30 +39,7 @@ export const messageAPI = {
     } catch (error) {
       throw error.response?.data || error.message;
     }
-  },
-
-  // Delete message
-  deleteMessage: async (messageId) => {
-    try {
-      const response = await apiClient.delete(`/messages/${messageId}`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-
-  // Search messages
-  searchMessages: async (conversationId, searchTerm) => {
-    try {
-      const response = await apiClient.get(
-        `/messages/conversations/${conversationId}/search`,
-        { params: { q: searchTerm } }
-      );
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
+  }
 };
 
 export default messageAPI;

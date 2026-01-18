@@ -1,43 +1,38 @@
 import apiClient from './axiosConfig';
 
-// Company Profile API
 export const companyAPI = {
-  // Get company profile
-  getProfile: async () => {
+  // 1. Get company by auth user ID
+  // MATCHES BACKEND: router.get('/user/:authUserId', ...)
+  getCompanyByAuthUserId: async (authUserId) => {
     try {
-      const response = await apiClient.get('/companies/profile');
+      // FIX: Changed path to match backend route '/user/:authUserId'
+      const response = await apiClient.get(`/company/user/${authUserId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
 
-  // Get company by ID
-  getCompanyById: async (companyId) => {
-    try {
-      const response = await apiClient.get(`/companies/${companyId}`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-
-  // Update company profile
+  // 2. Update company profile
+  // MATCHES BACKEND: router.put('/profile/update', ...)
   updateProfile: async (companyData) => {
     try {
-      const response = await apiClient.put('/companies/profile', {
-        company_name: companyData.companyName,
+      const response = await apiClient.put('/company/profile/update', {
+        userid:localStorage.getItem('userId'),
+        companyName: companyData.companyName, // Ensure casing matches Backend Model
         headline: companyData.headline,
         about: companyData.about,
-        profile_photo: companyData.profilePhoto,
-        banner_photo: companyData.bannerPhoto,
+        profilePhoto: companyData.profilePhoto,
+        bannerPhoto: companyData.bannerPhoto,
         industry: companyData.industry,
-        company_size: companyData.companySize, // e.g., "11-50", "51-200"
-        contact_email: companyData.contactEmail,
-        phone_number: companyData.phoneNumber,
-        phone_type: companyData.phoneType, // work / support / other
+        companySize: companyData.companySize, 
+        contactEmail: companyData.contactEmail,
+        phoneNumber: companyData.phoneNumber,
+        phoneType: companyData.phoneType,
         address: companyData.address,
         location: companyData.location,
+        // Add authUserId if your backend logic requires it in body, 
+        // though your controller takes it from req.user
       });
       return response.data;
     } catch (error) {
@@ -45,13 +40,36 @@ export const companyAPI = {
     }
   },
 
-  // Upload company logo
+  // 3. Get Single Company by ID
+  // MATCHES BACKEND: router.get('/:id', ...)
+  getCompanyById: async (companyId) => {
+    try {
+      const response = await apiClient.get(`/company/${companyId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // 4. Create Company (If you need to call it from frontend)
+  // MATCHES BACKEND: router.post('/', ...)
+  createCompany: async (companyData) => {
+    try {
+      const response = await apiClient.post('/company', companyData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // --- MISSING BACKEND ROUTES WARNING ---
+  // The following functions do not have corresponding routes in the file you shared.
+  // You need to add routes like router.post('/upload-logo', ...) to backend for these to work.
+  
   uploadLogo: async (formData) => {
     try {
-      const response = await apiClient.post('/companies/upload-logo', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      const response = await apiClient.post('/company/upload-logo', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data;
     } catch (error) {
@@ -59,13 +77,10 @@ export const companyAPI = {
     }
   },
 
-  // Upload company banner
   uploadBanner: async (formData) => {
     try {
-      const response = await apiClient.post('/companies/upload-banner', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      const response = await apiClient.post('/company/upload-banner', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data;
     } catch (error) {
@@ -74,14 +89,13 @@ export const companyAPI = {
   },
 };
 
-// Company Websites API
 export const companyWebsitesAPI = {
   // Add website
   addWebsite: async (websiteData) => {
     try {
-      const response = await apiClient.post('/companies/websites', {
+      const response = await apiClient.post('/company-website', {
         website_url: websiteData.websiteUrl,
-        website_type: websiteData.websiteType, // official / blog / portfolio / product
+        website_type: websiteData.websiteType, 
       });
       return response.data;
     } catch (error) {
@@ -92,17 +106,7 @@ export const companyWebsitesAPI = {
   // Get company websites
   getWebsites: async (companyId) => {
     try {
-      const response = await apiClient.get(`/companies/${companyId}/websites`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-
-  // Get current company's websites
-  getMyWebsites: async () => {
-    try {
-      const response = await apiClient.get('/companies/websites');
+      const response = await apiClient.get(`/company-website/${companyId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -112,7 +116,7 @@ export const companyWebsitesAPI = {
   // Update website
   updateWebsite: async (websiteId, websiteData) => {
     try {
-      const response = await apiClient.put(`/companies/websites/${websiteId}`, {
+      const response = await apiClient.put(`/company-website/${websiteId}`, {
         website_url: websiteData.websiteUrl,
         website_type: websiteData.websiteType,
       });
@@ -125,7 +129,7 @@ export const companyWebsitesAPI = {
   // Delete website
   deleteWebsite: async (websiteId) => {
     try {
-      const response = await apiClient.delete(`/companies/websites/${websiteId}`);
+      const response = await apiClient.delete(`/company-website/${websiteId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

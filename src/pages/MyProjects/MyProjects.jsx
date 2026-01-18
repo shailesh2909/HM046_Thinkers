@@ -1,95 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaBriefcase, FaMapMarkerAlt, FaClock, FaUsers, FaEye, FaEdit, FaTrash, FaCheckCircle, FaPlus } from 'react-icons/fa';
+import { companyProjectAPI } from '../../api/projectAPI';
 
 const MyProjects = () => {
   const navigate = useNavigate();
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      title: 'E-Commerce Website Development',
-      description: 'Build a full-stack e-commerce website with React and Node.js',
-      budget: '$2000-$5000',
-      duration: '30 days',
-      status: 'Active',
-      applicants: 12,
-      hired: 1,
-      skills: ['React', 'Node.js', 'MongoDB', 'Tailwind CSS'],
-      postedDate: '2024-01-05',
-      image: 'https://api.dicebear.com/7.x/initials/svg?seed=EC'
-    },
-    {
-      id: 2,
-      title: 'Mobile App UI/UX Design',
-      description: 'Design a modern mobile application interface',
-      budget: '$1500-$3000',
-      duration: '20 days',
-      status: 'Active',
-      applicants: 8,
-      hired: 1,
-      skills: ['Figma', 'UI Design', 'UX Research'],
-      postedDate: '2024-01-10',
-      image: 'https://api.dicebear.com/7.x/initials/svg?seed=MA'
-    },
-    {
-      id: 3,
-      title: 'AWS Cloud Architecture Setup',
-      description: 'Setup and configure AWS infrastructure for scalable microservices',
-      budget: '$3000-$7000',
-      duration: '45 days',
-      status: 'Closed',
-      applicants: 5,
-      hired: 1,
-      skills: ['AWS', 'Docker', 'Kubernetes'],
-      postedDate: '2023-12-15',
-      image: 'https://api.dicebear.com/7.x/initials/svg?seed=AW'
-    },
-    {
-      id: 4,
-      title: 'Dashboard Development',
-      description: 'Create interactive data visualization dashboards',
-      budget: '$1800-$3500',
-      duration: '25 days',
-      status: 'Active',
-      applicants: 15,
-      hired: 0,
-      skills: ['React', 'D3.js', 'Chart.js'],
-      postedDate: '2024-01-12',
-      image: 'https://api.dicebear.com/7.x/initials/svg?seed=DD'
-    },
-    {
-      id: 5,
-      title: 'Blog Platform Development',
-      description: 'Build a feature-rich blogging platform with CMS',
-      budget: '$1200-$2500',
-      duration: '40 days',
-      status: 'Active',
-      applicants: 20,
-      hired: 1,
-      skills: ['React', 'Express.js', 'PostgreSQL'],
-      postedDate: '2024-01-08',
-      image: 'https://api.dicebear.com/7.x/initials/svg?seed=BP'
-    }
-  ]);
-
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedFilter, setSelectedFilter] = useState('all');
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+          setError('User not authenticated');
+          setLoading(false);
+          return;
+        }
+
+        const response = await companyProjectAPI.getProjects(userId);
+        setProjects(response.data || []);
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to fetch projects');
+        setLoading(false);
+        console.error('Error fetching projects:', err);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   const filteredProjects = projects.filter(project => {
     if (selectedFilter === 'all') return true;
-    return project.status.toLowerCase() === selectedFilter;
+    return project.status?.toLowerCase() === selectedFilter;
   });
 
   const stats = {
     total: projects.length,
-    active: projects.filter(p => p.status === 'Active').length,
-    closed: projects.filter(p => p.status === 'Closed').length,
-    totalApplicants: projects.reduce((sum, p) => sum + p.applicants, 0),
-    totalHired: projects.reduce((sum, p) => sum + p.hired, 0)
+    active: projects.filter(p => p.status === 'active' || p.status === 'open').length,
+    closed: projects.filter(p => p.status === 'closed' || p.status === 'completed').length,
+    totalApplicants: 0, // Will be updated when applications are implemented
+    totalHired: 0 // Will be updated when hiring is implemented
   };
 
   const getStatusColor = (status) => {
     return status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-linear-to-br from-gray-50 via-gray-100 to-gray-200 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="text-xl">Loading projects...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-linear-to-br from-gray-50 via-gray-100 to-gray-200 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="text-xl text-red-600">{error}</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 via-gray-100 to-gray-200 py-8 px-4 sm:px-6 lg:px-8">
@@ -188,7 +167,7 @@ const MyProjects = () => {
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">{project.title}</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{project.projectName}</h3>
                   <p className="text-sm text-gray-600 line-clamp-2">{project.description}</p>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(project.status)} shrink-0 ml-2`}>
@@ -199,20 +178,20 @@ const MyProjects = () => {
               {/* Info Grid */}
               <div className="grid grid-cols-2 gap-3 mb-4 py-4 border-t border-b border-gray-200">
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-900 font-semibold text-sm">{project.budget}</span>
+                  <span className="text-gray-900 font-semibold text-sm">${project.totalBudget}</span>
                   <span className="text-xs text-gray-500">Budget</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <FaClock className="text-gray-500 text-sm" />
-                  <span className="text-xs text-gray-500">{project.duration}</span>
+                  <span className="text-xs text-gray-500">{project.startDate} - {project.endDate}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <FaUsers className="text-gray-500 text-sm" />
-                  <span className="text-xs text-gray-500">{project.applicants} applicants</span>
+                  <span className="text-xs text-gray-500">Applicants</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <FaCheckCircle className="text-green-600 text-sm" />
-                  <span className="text-xs text-gray-500">{project.hired} hired</span>
+                  <span className="text-xs text-gray-500">Hired</span>
                 </div>
               </div>
 

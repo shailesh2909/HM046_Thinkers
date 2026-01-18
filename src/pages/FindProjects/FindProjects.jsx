@@ -1,88 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaBriefcase, FaMapMarkerAlt, FaClock, FaTag, FaCheckCircle, FaTimes } from 'react-icons/fa';
+import { companyProjectAPI } from '../../api/projectAPI';
+import { applicationAPI } from '../../api/applicationAPI';
+import { resumeAPI } from '../../api/resumeAPI';
 
 const FindProjects = () => {
   const navigate = useNavigate();
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      companyName: 'TechCorp Solutions',
-      projectTitle: 'E-Commerce Website Development',
-      description: 'We need a full-stack e-commerce website built with React and Node.js',
-      budget: '$2000-$5000',
-      deadline: '30 days',
-      skills: ['React', 'Node.js', 'MongoDB', 'Tailwind CSS'],
-      level: 'Intermediate',
-      applications: 12,
-      image: 'https://api.dicebear.com/7.x/initials/svg?seed=TC'
-    },
-    {
-      id: 2,
-      companyName: 'DesignHub Inc',
-      projectTitle: 'Mobile App UI/UX Design',
-      description: 'Design a modern mobile application interface for our fitness tracking app',
-      budget: '$1500-$3000',
-      deadline: '20 days',
-      skills: ['Figma', 'UI Design', 'UX Research', 'Prototyping'],
-      level: 'Beginner',
-      applications: 8,
-      image: 'https://api.dicebear.com/7.x/initials/svg?seed=DH'
-    },
-    {
-      id: 3,
-      companyName: 'CloudFirst Technologies',
-      projectTitle: 'AWS Cloud Architecture Setup',
-      description: 'Setup and configure AWS infrastructure for scalable microservices application',
-      budget: '$3000-$7000',
-      deadline: '45 days',
-      skills: ['AWS', 'Docker', 'Kubernetes', 'DevOps'],
-      level: 'Advanced',
-      applications: 5,
-      image: 'https://api.dicebear.com/7.x/initials/svg?seed=CF'
-    },
-    {
-      id: 4,
-      companyName: 'DataViz Analytics',
-      projectTitle: 'Dashboard Development',
-      description: 'Create interactive data visualization dashboards for business analytics',
-      budget: '$1800-$3500',
-      deadline: '25 days',
-      skills: ['React', 'D3.js', 'Chart.js', 'API Integration'],
-      level: 'Intermediate',
-      applications: 15,
-      image: 'https://api.dicebear.com/7.x/initials/svg?seed=DA'
-    },
-    {
-      id: 5,
-      companyName: 'SecureNet Corp',
-      projectTitle: 'Security Audit & Testing',
-      description: 'Perform comprehensive security testing and penetration testing for our web application',
-      budget: '$2500-$5000',
-      deadline: '35 days',
-      skills: ['Security Testing', 'Penetration Testing', 'OWASP'],
-      level: 'Advanced',
-      applications: 3,
-      image: 'https://api.dicebear.com/7.x/initials/svg?seed=SN'
-    },
-    {
-      id: 6,
-      companyName: 'ContentFlow Media',
-      projectTitle: 'Blog Platform Development',
-      description: 'Build a feature-rich blogging platform with CMS capabilities',
-      budget: '$1200-$2500',
-      deadline: '40 days',
-      skills: ['React', 'Express.js', 'PostgreSQL', 'Stripe'],
-      level: 'Intermediate',
-      applications: 20,
-      image: 'https://api.dicebear.com/7.x/initials/svg?seed=CM'
-    }
-  ]);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   const [applications, setApplications] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [coverLetter, setCoverLetter] = useState('');
+  const [selectedResumeId, setSelectedResumeId] = useState('');
+  const [userResumes, setUserResumes] = useState([]);
+  const [resumesLoading, setResumesLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true);
+        const response = await companyProjectAPI.getAllProjects();
+        setProjects(response.data || []);
+      } catch (err) {
+        setError('Failed to fetch projects');
+        console.error('Error fetching projects:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  useEffect(() => {
+    const fetchUserResumes = async () => {
+      try {
+        setResumesLoading(true);
+        const response = await resumeAPI.getUserResumes();
+        setUserResumes(response.data || []);
+        // Auto-select the first resume if available
+        if (response.data && response.data.length > 0) {
+          setSelectedResumeId(response.data[0].id);
+        }
+      } catch (err) {
+        console.error('Error fetching user resumes:', err);
+      } finally {
+        setResumesLoading(false);
+      }
+    };
+
+    fetchUserResumes();
+  }, []);
 
   const handleApplyClick = (project) => {
     setSelectedProject(project);
@@ -90,31 +64,50 @@ const FindProjects = () => {
     setShowModal(true);
   };
 
-  const handleSubmitApplication = () => {
+  const handleSubmitApplication = async () => {
     if (!coverLetter.trim()) {
       alert('Please write a cover letter');
       return;
     }
 
-    setApplications({
-      ...applications,
-      [selectedProject.id]: {
-        status: 'Applied',
-        coverLetter: coverLetter,
-        appliedAt: new Date().toLocaleDateString()
-      }
-    });
+    if (!selectedResumeId) {
+      alert('Please select a resume');
+      return;
+    }
 
-    setShowModal(false);
-    setCoverLetter('');
-    setSelectedProject(null);
-    alert('Application submitted successfully!');
+    try {
+      // Use applicationAPI to apply
+      await applicationAPI.applyToJob({
+        projectId: selectedProject.id,
+        resumeId: selectedResumeId,
+        coverLetter: coverLetter
+      });
+
+      setApplications({
+        ...applications,
+        [selectedProject.id]: {
+          status: 'Applied',
+          coverLetter: coverLetter,
+          appliedAt: new Date().toLocaleDateString()
+        }
+      });
+
+      setShowModal(false);
+      setCoverLetter('');
+      setSelectedProject(null);
+      setSelectedResumeId(userResumes.length > 0 ? userResumes[0].id : '');
+      alert('Application submitted successfully!');
+    } catch (error) {
+      console.error('Error submitting application:', error);
+      alert('Failed to submit application. Please try again.');
+    }
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedProject(null);
     setCoverLetter('');
+    setSelectedResumeId(userResumes.length > 0 ? userResumes[0].id : '');
   };
 
   const isApplied = (projectId) => {
@@ -167,29 +160,29 @@ const FindProjects = () => {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <img
-                    src={project.image}
-                    alt={project.companyName}
+                    src={`https://api.dicebear.com/7.x/initials/svg?seed=${project.Company?.companyName || 'C'}`}
+                    alt={project.Company?.companyName || 'Company'}
                     className="w-12 h-12 rounded-full border-2 border-gray-200 cursor-pointer hover:shadow-md transition-all"
-                    onClick={() => navigate(`/view-profile/${project.id}/company`)}
+                    onClick={() => navigate(`/view-profile/${project.companyId}/company`)}
                   />
                   <div>
-                    <p className="text-sm font-semibold text-gray-900">{project.companyName}</p>
+                    <p className="text-sm font-semibold text-gray-900">{project.Company?.companyName || 'Company'}</p>
                     <p className="text-xs text-gray-500">Company</p>
                   </div>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  project.level === 'Beginner'
+                  project.projectCategory === 'Beginner'
                     ? 'bg-green-100 text-green-800'
-                    : project.level === 'Intermediate'
+                    : project.projectCategory === 'Intermediate'
                     ? 'bg-blue-100 text-blue-800'
                     : 'bg-purple-100 text-purple-800'
                 }`}>
-                  {project.level}
+                  {project.projectCategory || 'General'}
                 </span>
               </div>
 
               {/* Project Title */}
-              <h2 className="text-xl font-bold text-gray-900 mb-2">{project.projectTitle}</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">{project.projectName}</h2>
               <p className="text-gray-600 text-sm mb-4">{project.description}</p>
 
               {/* Project Info */}
@@ -198,14 +191,14 @@ const FindProjects = () => {
                   <FaTag className="text-gray-500" />
                   <div>
                     <p className="text-xs text-gray-500">Budget</p>
-                    <p className="text-sm font-semibold text-gray-900">{project.budget}</p>
+                    <p className="text-sm font-semibold text-gray-900">${project.totalBudget}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <FaClock className="text-gray-500" />
                   <div>
-                    <p className="text-xs text-gray-500">Deadline</p>
-                    <p className="text-sm font-semibold text-gray-900">{project.deadline}</p>
+                    <p className="text-xs text-gray-500">Status</p>
+                    <p className="text-sm font-semibold text-gray-900">{project.projectStatus}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2 col-span-2">
@@ -274,11 +267,11 @@ const FindProjects = () => {
               {/* Project Summary */}
               <div className="bg-gray-50 rounded-xl p-4 mb-6">
                 <p className="text-sm text-gray-600 mb-1">Project</p>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">{selectedProject.projectTitle}</h3>
-                <p className="text-sm text-gray-600 mb-4">{selectedProject.companyName}</p>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{selectedProject.projectName}</h3>
+                <p className="text-sm text-gray-600 mb-4">{selectedProject.Company?.companyName || 'Company'}</p>
                 <div className="flex items-center space-x-4">
-                  <span className="text-sm font-semibold text-gray-900">{selectedProject.budget}</span>
-                  <span className="text-sm font-semibold text-gray-900">{selectedProject.deadline}</span>
+                  <span className="text-sm font-semibold text-gray-900">${selectedProject.totalBudget}</span>
+                  <span className="text-sm font-semibold text-gray-900">{selectedProject.projectCategory || 'General'}</span>
                 </div>
               </div>
 
@@ -299,6 +292,32 @@ const FindProjects = () => {
                 </p>
               </div>
 
+              {/* Resume Selection */}
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Select Resume
+                </label>
+                {resumesLoading ? (
+                  <div className="text-sm text-gray-600">Loading resumes...</div>
+                ) : userResumes.length > 0 ? (
+                  <select
+                    value={selectedResumeId}
+                    onChange={(e) => setSelectedResumeId(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+                  >
+                    {userResumes.map((resume) => (
+                      <option key={resume.id} value={resume.id}>
+                        {resume.resume_name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <div className="text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-200">
+                    No resumes found. Please upload a resume in your profile first.
+                  </div>
+                )}
+              </div>
+
               {/* Your Profile Summary */}
               <div className="bg-blue-50 rounded-xl p-4 mb-6 border border-blue-200">
                 <p className="text-sm text-blue-900">
@@ -316,7 +335,7 @@ const FindProjects = () => {
                 </button>
                 <button
                   onClick={handleSubmitApplication}
-                  disabled={coverLetter.length < 50}
+                  disabled={coverLetter.length < 50 || !selectedResumeId || userResumes.length === 0}
                   className="flex-1 py-2.5 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg font-semibold transition-all"
                 >
                   Submit Application

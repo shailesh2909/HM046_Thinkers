@@ -1,11 +1,21 @@
 import apiClient from './axiosConfig';
 
-// Project APIs for both freelancers and companies
-export const projectAPI = {
-  // Get all projects (with pagination and filters)
-  getAllProjects: async (filters = {}) => {
+// Freelancer Projects API
+export const freelancerProjectAPI = {
+  // Create new freelancer project
+  createProject: async (userId, projectData) => {
     try {
-      const response = await apiClient.get('/projects', { params: filters });
+      const response = await apiClient.post(`/project/${userId}`, projectData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Get all projects for a freelancer
+  getProjects: async (userId) => {
+    try {
+      const response = await apiClient.get(`/project/${userId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -15,127 +25,133 @@ export const projectAPI = {
   // Get single project by ID
   getProjectById: async (projectId) => {
     try {
-      const response = await apiClient.get(`/projects/${projectId}`);
+      const response = await apiClient.get(`/project/single/${projectId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
 
-  // Create new project (companies only)
-  createProject: async (projectData) => {
-    try {
-      const response = await apiClient.post('/projects', {
-        project_name: projectData.projectName,
-        description: projectData.description,
-        total_budget: projectData.totalBudget,
-        currency: projectData.currency || 'INR',
-        start_date: projectData.startDate,
-        end_date: projectData.endDate,
-        project_status: projectData.projectStatus || 'draft', // draft / open / in_progress / completed / cancelled
-      });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-
-  // Update project (companies only)
+  // Update project
   updateProject: async (projectId, projectData) => {
     try {
-      const response = await apiClient.put(`/projects/${projectId}`, {
-        project_name: projectData.projectName,
-        description: projectData.description,
-        total_budget: projectData.totalBudget,
-        currency: projectData.currency,
-        start_date: projectData.startDate,
-        end_date: projectData.endDate,
-        project_status: projectData.projectStatus,
-      });
+      const response = await apiClient.put(`/project/${projectId}`, projectData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
 
-  // Delete project (companies only)
+  // Delete project
   deleteProject: async (projectId) => {
     try {
-      const response = await apiClient.delete(`/projects/${projectId}`);
+      const response = await apiClient.delete(`/project/${projectId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  }
+};
+
+// Company Projects API
+export const companyProjectAPI = {
+  // Create new company project
+  createProject: async (companyId, projectData) => {
+    try {
+      const response = await apiClient.post(`/company-project/${companyId}`, projectData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
 
-  // Get freelancer's projects
-  getFreelancerProjects: async (freelancerId) => {
+  // Get all projects for a company
+  getProjects: async (companyId) => {
     try {
-      const response = await apiClient.get(`/projects/freelancer/${freelancerId}`);
+      const response = await apiClient.get(`/company-project/${companyId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
 
-  // Get company's projects
-  getCompanyProjects: async (companyId) => {
+  // Get projects by status
+  getProjectsByStatus: async (companyId, status) => {
     try {
-      const response = await apiClient.get(`/projects/company/${companyId}`);
+      const response = await apiClient.get(`/company-project/${companyId}/status/${status}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
 
-  // Search projects
-  searchProjects: async (searchTerm) => {
+  // Get single project by ID
+  getProjectById: async (projectId) => {
     try {
-      const response = await apiClient.get('/projects/search', {
-        params: { q: searchTerm },
-      });
+      const response = await apiClient.get(`/company-project/single/${projectId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
+
+  // Update project
+  updateProject: async (projectId, projectData) => {
+    try {
+      const response = await apiClient.put(`/company-project/${projectId}`, projectData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Delete project
+  deleteProject: async (projectId) => {
+    try {
+      const response = await apiClient.delete(`/company-project/${projectId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Get all projects from all companies (for freelancers)
+  getAllProjects: async () => {
+    try {
+      const response = await apiClient.get('/company-project/all');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  }
 };
 
 // Project Milestones API
-export const projectMilestonesAPI = {
+export const projectMilestoneAPI = {
   // Create milestone
-  createMilestone: async (milestoneData) => {
+  createMilestone: async (projectId, milestoneData) => {
     try {
-      const response = await apiClient.post('/projects/milestones', {
-        project_id: milestoneData.projectId,
-        milestone_title: milestoneData.milestoneTitle,
-        description: milestoneData.description,
-        amount: milestoneData.amount,
-        order_no: milestoneData.orderNo,
-        start_date: milestoneData.startDate,
-        end_date: milestoneData.endDate,
-        milestone_status: milestoneData.milestoneStatus || 'pending', // pending / in_progress / submitted / approved / paid / rejected
-      });
+      const response = await apiClient.post(`/milestone/${projectId}`, milestoneData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
 
-  // Get project milestones
-  getProjectMilestones: async (projectId) => {
+  // Get milestones for a project
+  getMilestones: async (projectId) => {
     try {
-      const response = await apiClient.get(`/projects/${projectId}/milestones`);
+      const response = await apiClient.get(`/milestone/${projectId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
 
-  // Get milestone by ID
+  // Get single milestone by ID
   getMilestoneById: async (milestoneId) => {
     try {
-      const response = await apiClient.get(`/projects/milestones/${milestoneId}`);
+      const response = await apiClient.get(`/milestone/single/${milestoneId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -145,25 +161,7 @@ export const projectMilestonesAPI = {
   // Update milestone
   updateMilestone: async (milestoneId, milestoneData) => {
     try {
-      const response = await apiClient.put(`/projects/milestones/${milestoneId}`, {
-        milestone_title: milestoneData.milestoneTitle,
-        description: milestoneData.description,
-        amount: milestoneData.amount,
-        order_no: milestoneData.orderNo,
-        start_date: milestoneData.startDate,
-        end_date: milestoneData.endDate,
-        milestone_status: milestoneData.milestoneStatus,
-      });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-
-  // Delete milestone
-  deleteMilestone: async (milestoneId) => {
-    try {
-      const response = await apiClient.delete(`/projects/milestones/${milestoneId}`);
+      const response = await apiClient.put(`/milestone/${milestoneId}`, milestoneData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -173,126 +171,36 @@ export const projectMilestonesAPI = {
   // Update milestone status
   updateMilestoneStatus: async (milestoneId, status) => {
     try {
-      const response = await apiClient.patch(`/projects/milestones/${milestoneId}/status`, {
-        milestone_status: status, // pending / in_progress / submitted / approved / paid / rejected
-      });
+      const response = await apiClient.patch(`/milestone/${milestoneId}/status`, { status });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
+
+  // Get milestones by status
+  getMilestonesByStatus: async (projectId, status) => {
+    try {
+      const response = await apiClient.get(`/milestone/${projectId}/status/${status}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Delete milestone
+  deleteMilestone: async (milestoneId) => {
+    try {
+      const response = await apiClient.delete(`/milestone/${milestoneId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  }
 };
 
-// Milestone Submissions API
-export const milestoneSubmissionsAPI = {
-  // Submit work for milestone
-  submitWork: async (submissionData) => {
-    try {
-      const response = await apiClient.post('/projects/milestones/submissions', {
-        milestone_id: submissionData.milestoneId,
-        submission_url: submissionData.submissionUrl,
-        message: submissionData.message,
-      });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-
-  // Get milestone submissions
-  getMilestoneSubmissions: async (milestoneId) => {
-    try {
-      const response = await apiClient.get(`/projects/milestones/${milestoneId}/submissions`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-
-  // Get submission by ID
-  getSubmissionById: async (submissionId) => {
-    try {
-      const response = await apiClient.get(`/projects/milestones/submissions/${submissionId}`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-
-  // Review submission (company)
-  reviewSubmission: async (submissionId, reviewData) => {
-    try {
-      const response = await apiClient.put(`/projects/milestones/submissions/${submissionId}/review`, {
-        reviewed_at: new Date().toISOString(),
-        ...reviewData,
-      });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
+export default {
+  freelancerProjectAPI,
+  companyProjectAPI,
+  projectMilestoneAPI
 };
-
-// Project Assignments API
-export const projectAssignmentsAPI = {
-  // Assign freelancer to project
-  assignFreelancer: async (assignmentData) => {
-    try {
-      const response = await apiClient.post('/projects/assignments', {
-        project_id: assignmentData.projectId,
-        freelancer_auth_id: assignmentData.freelancerAuthId,
-        assignment_status: assignmentData.assignmentStatus || 'active', // active / completed / terminated
-      });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-
-  // Get project assignments
-  getProjectAssignments: async (projectId) => {
-    try {
-      const response = await apiClient.get(`/projects/${projectId}/assignments`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-
-  // Get freelancer assignments
-  getFreelancerAssignments: async (freelancerAuthId) => {
-    try {
-      const response = await apiClient.get(`/freelancers/${freelancerAuthId}/assignments`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-
-  // Update assignment status
-  updateAssignmentStatus: async (assignmentId, status) => {
-    try {
-      const response = await apiClient.patch(`/projects/assignments/${assignmentId}/status`, {
-        assignment_status: status, // active / completed / terminated
-      });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-
-  // Terminate assignment
-  terminateAssignment: async (assignmentId, reason) => {
-    try {
-      const response = await apiClient.put(`/projects/assignments/${assignmentId}/terminate`, {
-        assignment_status: 'terminated',
-        reason: reason,
-      });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-};
-
-export default projectAPI;

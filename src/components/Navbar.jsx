@@ -11,7 +11,7 @@ const Navbar = () => {
         
         {/* Logo */}
         <Link to="/" className="text-2xl font-black text-black hover:opacity-70 transition">
-          Hackmatrix
+          HireIt
         </Link>
 
         {/* Desktop Links */}

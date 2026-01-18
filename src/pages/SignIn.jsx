@@ -20,26 +20,19 @@ const SignIn = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/signin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(signInData),
-      });
+      const response = await authAPI.signin(signInData);
+      
+      // Store authentication data
+      localStorage.setItem("token", response.token);
+      localStorage.setItem("userType", response.user_type);
+      localStorage.setItem("userId", response.user_id);
+      localStorage.setItem("userName", response.userName);
 
-      if (response.ok) {
-        const data = await response.json();
-        const responseData = data.data || data;
-        localStorage.setItem("token", responseData.token);
-        localStorage.setItem("userType", responseData.user_type || responseData.userType);
-        localStorage.setItem("userName", responseData.name || responseData.company_name || responseData.companyName);
-        navigate("/dashboard");
-      } else {
-        const errorData = await response.json();
-        alert(errorData.error || "Invalid credentials");
-      }
+      navigate("/dashboard");
+      
     } catch (error) {
       console.error("Sign in error:", error);
-      alert("Sign in failed. Please try again.");
+      alert(error || "Invalid credentials");
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   FaBell,
@@ -11,47 +11,62 @@ import {
   FaStar,
   FaChartLine
 } from 'react-icons/fa';
+import { freelancerProjectAPI, companyProjectAPI } from '../../api/projectAPI';
+import { applicationAPI } from '../../api/applicationAPI';
 
 const Dashboard = ({ userType = 'freelancer', userName = 'User' }) => {
   const navigate = useNavigate();
+  const [applications, setApplications] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   
-  // Sample data - will be replaced with API calls from PostgreSQL
-  const [applications, setApplications] = React.useState([
-    {
-      id: 1,
-      title: "E-commerce Platform Redesign",
-      company: "TechCorp Solutions",
-      status: "Under Review",
-      appliedDate: "2 days ago",
-      budget: "₹50,000"
-    },
-    {
-      id: 2,
-      title: "Dashboard UI/UX Design",
-      company: "FinanceApp Inc",
-      status: "Shortlisted",
-      appliedDate: "5 days ago",
-      budget: "₹35,000"
-    },
-    {
-      id: 3,
-      title: "Mobile App Development",
-      company: "StartupXYZ",
-      status: "Pending",
-      appliedDate: "1 week ago",
-      budget: "₹75,000"
-    }
+  const [notifications, setNotifications] = useState([
+    { id: 1, text: "Welcome to HackMatrix!", time: "Just now", unread: true },
+    { id: 2, text: "Complete your profile to get better matches", time: "1h ago", unread: false }
   ]);
 
-  const [notifications, setNotifications] = React.useState([
-    { id: 1, text: "New message from TechCorp Solutions", time: "2m ago", unread: true },
-    { id: 2, text: "Application shortlisted for Dashboard UI/UX", time: "1h ago", unread: true },
-    { id: 3, text: "New project matches your skills", time: "3h ago", unread: false },
-    { id: 4, text: "Profile viewed by FinanceApp Inc", time: "5h ago", unread: false }
-  ]);
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
-  const [filterStatus, setFilterStatus] = React.useState('all');
-  const [notificationsOpen, setNotificationsOpen] = React.useState(false);
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+          setError('User not authenticated');
+          setLoading(false);
+          return;
+        }
+
+        if (userType === 'company') {
+          // Fetch company projects and applications
+          const [projectsResponse, applicationsResponse] = await Promise.all([
+            companyProjectAPI.getProjects(userId),
+            applicationAPI.getCompanyApplications()
+          ]);
+          setProjects(projectsResponse.data || []);
+          setApplications(applicationsResponse.data || []);
+        } else {
+          // Fetch freelancer projects and applications
+          const [projectsResponse] = await Promise.all([
+            freelancerProjectAPI.getProjects(userId)
+          ]);
+          setProjects(projectsResponse.data || []);
+          // For freelancers, applications would be fetched from a different endpoint
+          setApplications([]);
+        }
+
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to fetch dashboard data');
+        setLoading(false);
+        console.error('Error fetching dashboard data:', err);
+      }
+    };
+
+    fetchDashboardData();
+  }, [userType]);
 
   // Filter applications based on status
   const filteredApplications = filterStatus === 'all' 

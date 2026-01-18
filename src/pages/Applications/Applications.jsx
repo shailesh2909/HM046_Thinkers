@@ -1,80 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaBriefcase, FaMapMarkerAlt, FaClock, FaCheckCircle, FaClock as FaClockReview, FaStar, FaEye, FaTimes } from 'react-icons/fa';
+import { applicationAPI } from '../../api/applicationAPI';
 
-const Applications = () => {
-  const [applications, setApplications] = useState([
-    {
-      id: 1,
-      projectTitle: 'E-Commerce Website Development',
-      companyName: 'TechCorp Solutions',
-      appliedDate: '2024-01-15',
-      status: 'Under Review',
-      budget: '$2000-$5000',
-      level: 'Intermediate',
-      image: 'https://api.dicebear.com/7.x/initials/svg?seed=TC',
-      coverLetter: 'I have extensive experience with React and Node.js...'
-    },
-    {
-      id: 2,
-      projectTitle: 'Mobile App UI/UX Design',
-      companyName: 'DesignHub Inc',
-      appliedDate: '2024-01-14',
-      status: 'Shortlisted',
-      budget: '$1500-$3000',
-      level: 'Beginner',
-      image: 'https://api.dicebear.com/7.x/initials/svg?seed=DH',
-      coverLetter: 'I am passionate about creating beautiful user interfaces...'
-    },
-    {
-      id: 3,
-      projectTitle: 'AWS Cloud Architecture Setup',
-      companyName: 'CloudFirst Technologies',
-      appliedDate: '2024-01-10',
-      status: 'Under Review',
-      budget: '$3000-$7000',
-      level: 'Advanced',
-      image: 'https://api.dicebear.com/7.x/initials/svg?seed=CF',
-      coverLetter: 'With 5 years of AWS experience, I can handle this project...'
-    },
-    {
-      id: 4,
-      projectTitle: 'Dashboard Development',
-      companyName: 'DataViz Analytics',
-      appliedDate: '2024-01-12',
-      status: 'Rejected',
-      budget: '$1800-$3500',
-      level: 'Intermediate',
-      image: 'https://api.dicebear.com/7.x/initials/svg?seed=DA',
-      coverLetter: 'I have built many dashboards with React and D3.js...'
-    },
-    {
-      id: 5,
-      projectTitle: 'Security Audit & Testing',
-      companyName: 'SecureNet Corp',
-      appliedDate: '2024-01-11',
-      status: 'Shortlisted',
-      budget: '$2500-$5000',
-      level: 'Advanced',
-      image: 'https://api.dicebear.com/7.x/initials/svg?seed=SN',
-      coverLetter: 'I specialize in penetration testing and security...'
-    },
-    {
-      id: 6,
-      projectTitle: 'Blog Platform Development',
-      companyName: 'ContentFlow Media',
-      appliedDate: '2024-01-09',
-      status: 'Accepted',
-      budget: '$1200-$2500',
-      level: 'Intermediate',
-      image: 'https://api.dicebear.com/7.x/initials/svg?seed=CM',
-      coverLetter: 'Perfect project for my skills in full-stack development...'
+ const Applications = ({ userType = 'freelancer', userName = 'User' }) => {
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        setLoading(true);
+        let data;
+        if (userType === 'company') {
+          data = await applicationAPI.getCompanyApplications();
+        } else {
+          data = await applicationAPI.getMyApplications();
+        }
+        setApplications(data);
+      } catch (err) {
+        setError(err.message || 'Failed to fetch applications');
+        console.error('Error fetching applications:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApplications();
+  }, [userType]);
+
+  const normalizeApplicationData = (application) => {
+    if (userType === 'company') {
+      return {
+        id: application.id,
+        projectTitle: application.CompanyProject?.projectName || 'Unknown Project',
+        companyName: application.User?.email || 'Unknown User',
+        appliedDate: application.createdAt,
+        status: 'Under Review', // Default status since we don't have status field yet
+        budget: `$${application.CompanyProject?.totalBudget || 'N/A'}`,
+        level: 'Intermediate', // Default level
+        image: 'https://api.dicebear.com/7.x/initials/svg?seed=' + (application.User?.email || 'U'),
+        coverLetter: application.coverLetter,
+        resumeName: application.Resume?.resume_name,
+        resumeId: application.resumeId
+      };
+    } else {
+      return {
+        id: application.id,
+        projectTitle: application.CompanyProject?.projectName || 'Unknown Project',
+        companyName: 'Company', // We don't have company name in freelancer view
+        appliedDate: application.createdAt,
+        status: 'Under Review', // Default status
+        budget: `$${application.CompanyProject?.totalBudget || 'N/A'}`,
+        level: 'Intermediate', // Default level
+        image: 'https://api.dicebear.com/7.x/initials/svg?seed=C',
+        coverLetter: application.coverLetter,
+        resumeName: application.Resume?.resume_name,
+        resumeId: application.resumeId
+      };
     }
-  ]);
+  };
 
-  const [selectedFilter, setSelectedFilter] = useState('all');
-  const [expandedApp, setExpandedApp] = useState(null);
+  const normalizedApplications = applications.map(normalizeApplicationData);
 
-  const filteredApplications = applications.filter(app => {
+  const filteredApplications = normalizedApplications.filter(app => {
     if (selectedFilter === 'all') return true;
     if (selectedFilter === 'recent') return app.status === 'Under Review';
     if (selectedFilter === 'shortlisted') return app.status === 'Shortlisted';
@@ -84,11 +73,11 @@ const Applications = () => {
   });
 
   const stats = {
-    total: applications.length,
-    recent: applications.filter(a => a.status === 'Under Review').length,
-    shortlisted: applications.filter(a => a.status === 'Shortlisted').length,
-    accepted: applications.filter(a => a.status === 'Accepted').length,
-    rejected: applications.filter(a => a.status === 'Rejected').length
+    total: normalizedApplications.length,
+    recent: normalizedApplications.filter(a => a.status === 'Under Review').length,
+    shortlisted: normalizedApplications.filter(a => a.status === 'Shortlisted').length,
+    accepted: normalizedApplications.filter(a => a.status === 'Accepted').length,
+    rejected: normalizedApplications.filter(a => a.status === 'Rejected').length
   };
 
   const getStatusColor = (status) => {
@@ -137,10 +126,34 @@ const Applications = () => {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">My Applications</h1>
-          <p className="text-gray-600">Track your project applications and their status</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            {userType === 'company' ? 'Project Applications' : 'My Applications'}
+          </h1>
+          <p className="text-gray-600">
+            {userType === 'company' 
+              ? 'Review and manage applications for your projects' 
+              : 'Track your project applications and their status'
+            }
+          </p>
         </div>
 
+        {/* Loading and Error States */}
+        {loading && (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+            <p className="text-gray-600 mt-4">Loading applications...</p>
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-6 mb-8">
+            <p className="text-red-800 font-medium">Error loading applications</p>
+            <p className="text-red-600 text-sm mt-1">{error}</p>
+          </div>
+        )}
+
+        {!loading && !error && (
+        <>
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all">
@@ -352,10 +365,17 @@ const Applications = () => {
             <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center shadow-sm">
               <FaBriefcase className="mx-auto text-4xl text-gray-400 mb-4" />
               <p className="text-gray-600 text-lg">No applications found</p>
-              <p className="text-gray-500 text-sm mt-2">Start applying to projects to see them here</p>
+              <p className="text-gray-500 text-sm mt-2">
+                {userType === 'company' 
+                  ? 'No one has applied to your projects yet' 
+                  : 'Start applying to projects to see them here'
+                }
+              </p>
             </div>
           )}
         </div>
+        </>
+        )}
       </div>
     </div>
   );
