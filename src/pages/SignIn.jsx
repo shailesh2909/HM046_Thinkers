@@ -27,7 +27,8 @@ const SignIn = () => {
       localStorage.setItem("userType", response.user_type);
       localStorage.setItem("userId", response.user_id);
       localStorage.setItem("userName", response.userName);
-
+    console.log(response);
+    
       // Reload to update auth state and redirect
       window.location.href = "/dashboard";
       
